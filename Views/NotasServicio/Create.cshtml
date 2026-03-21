@@ -1,0 +1,100 @@
+@model DanimecApp.Models.NotaServicio
+@{
+    ViewData["Title"] = "Nueva Nota de Servicio";
+}
+
+<div class="page-header">
+    <div class="d-flex align-center gap-16">
+        <a asp-controller="NotasServicio" asp-action="Index" class="btn-icon-dn">
+            <span class="material-icons-round">arrow_back</span>
+        </a>
+        <div>
+            <h1 class="page-title">Nueva Nota de Servicio</h1>
+            <p class="page-subtitle">Inicializar un nuevo diagnóstico técnico y orden de servicio.</p>
+        </div>
+    </div>
+</div>
+
+<div class="page-body">
+<form asp-action="Create" method="post">
+    <asp:AntiForgeryToken />
+
+    <!-- Client Info -->
+    <div class="form-card">
+        <div class="form-section-title">Información del Cliente</div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">Fecha de Entrada</label>
+                <input asp-for="FechaEntrada" type="date" class="form-control-dn"
+                       value="@Model.FechaEntrada.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="form-group">
+                <label class="form-label">Cliente</label>
+                <select asp-for="ClienteId" asp-items="ViewBag.Clientes" class="form-control-dn" id="clienteSelect">
+                    <option value="">— Seleccionar cliente —</option>
+                </select>
+                <span asp-validation-for="ClienteId" class="field-validation-error"></span>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Vehículo</label>
+                <select asp-for="VehiculoId" asp-items="ViewBag.Vehiculos" class="form-control-dn" id="vehiculoSelect">
+                    <option value="">— Seleccionar vehículo —</option>
+                </select>
+                <span asp-validation-for="VehiculoId" class="field-validation-error"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vehicle Details -->
+    <div class="form-card">
+        <div class="form-section-title">Detalles del Servicio</div>
+        <div class="form-grid">
+            <div class="form-group form-grid-full">
+                <label class="form-label">Motivo de Ingreso</label>
+                <input asp-for="MotivoIngreso" class="form-control-dn" placeholder="Descripción del problema reportado por el cliente..." />
+            </div>
+            <div class="form-group form-grid-full">
+                <label class="form-label">Observaciones del Cliente</label>
+                <textarea asp-for="ObservacionesCliente" class="form-control-dn" rows="3"
+                          placeholder="Notas adicionales, historial de fallas, etc..."></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Fecha Salida Estimada</label>
+                <input asp-for="FechaSalidaEstimada" type="date" class="form-control-dn" />
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex gap-8">
+        <button type="submit" class="btn-primary-dn">
+            <span class="material-icons-round" style="font-size:18px">save</span>
+            Crear Nota de Servicio
+        </button>
+        <a asp-action="Index" class="btn-ghost-dn">Cancelar</a>
+    </div>
+</form>
+</div>
+
+@section Scripts {
+<script>
+document.getElementById('clienteSelect').addEventListener('change', function() {
+    const clienteId = this.value;
+    const vehiculoSelect = document.getElementById('vehiculoSelect');
+    vehiculoSelect.innerHTML = '<option value="">Cargando...</option>';
+
+    if (!clienteId) {
+        vehiculoSelect.innerHTML = '<option value="">— Seleccionar vehículo —</option>';
+        return;
+    }
+
+    fetch(`/NotasServicio/VehiculosPorCliente?clienteId=${clienteId}`)
+        .then(r => r.json())
+        .then(data => {
+            vehiculoSelect.innerHTML = '<option value="">— Seleccionar vehículo —</option>';
+            data.forEach(v => {
+                vehiculoSelect.innerHTML += `<option value="${v.id}">${v.nombre}</option>`;
+            });
+        });
+});
+</script>
+}

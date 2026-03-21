@@ -1,0 +1,112 @@
+@model IEnumerable<DanimecApp.Models.NotaServicio>
+@using DanimecApp.Models
+@{
+    ViewData["Title"] = "Historial de Servicios";
+}
+
+<div class="page-header">
+    <div class="d-flex align-center gap-16">
+        <div>
+            <h1 class="page-title">Historial de Servicios</h1>
+            <p class="page-subtitle">Registro completo de todas las notas de servicio</p>
+        </div>
+        <div class="ms-auto">
+            <a asp-controller="NotasServicio" asp-action="Create" class="btn-primary-dn">
+                <span class="material-icons-round" style="font-size:18px">add</span>
+                Nueva Nota
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="page-body">
+
+    <!-- Search & Filters -->
+    <div class="d-flex align-center gap-16 mb-24" style="flex-wrap:wrap">
+        <form method="get" class="d-flex align-center gap-12" style="flex:1">
+            <div class="search-bar">
+                <span class="material-icons-round">search</span>
+                <input type="text" name="buscar" placeholder="Buscar por N°, cliente o placa..." value="@ViewBag.Buscar" />
+            </div>
+            <button type="submit" class="btn-primary-dn" style="padding:8px 16px">Buscar</button>
+            @if (!string.IsNullOrEmpty(ViewBag.Buscar as string))
+            {
+                <a asp-action="Index" class="btn-ghost-dn" style="padding:7px 14px;font-size:12px">Limpiar</a>
+            }
+        </form>
+    </div>
+
+    <!-- Filter chips -->
+    <div class="filter-row mb-16">
+        <a asp-action="Index" class="filter-chip @(ViewBag.EstadoFiltro == null ? "active" : "")">Todos</a>
+        <a asp-action="Index" asp-route-estado="1" class="filter-chip @(ViewBag.EstadoFiltro?.ToString() == "EnProgreso" ? "active" : "")">En Progreso</a>
+        <a asp-action="Index" asp-route-estado="2" class="filter-chip @(ViewBag.EstadoFiltro?.ToString() == "Cotizacion" ? "active" : "")">Cotización</a>
+        <a asp-action="Index" asp-route-estado="3" class="filter-chip @(ViewBag.EstadoFiltro?.ToString() == "Finalizado" ? "active" : "")">Finalizados</a>
+        <a asp-action="Index" asp-route-estado="4" class="filter-chip @(ViewBag.EstadoFiltro?.ToString() == "Vencido" ? "active" : "")">Vencidos</a>
+    </div>
+
+    <div class="data-section">
+        <div class="section-header">
+            <div>
+                <div class="section-title">Notas de Servicio</div>
+                <div class="section-subtitle">@Model.Count() resultado(s) encontrado(s)</div>
+            </div>
+        </div>
+        <table class="dn-table">
+            <thead>
+                <tr>
+                    <th>N° Orden</th>
+                    <th>Fecha Entrada</th>
+                    <th>Cliente</th>
+                    <th>Vehículo / Placa</th>
+                    <th>Motivo</th>
+                    <th>Salida Est.</th>
+                    <th>Estado</th>
+                    <th class="right">Total</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var nota in Model)
+                {
+                    <tr>
+                        <td class="fw-semibold" style="color:var(--primary-container)">@nota.Numero</td>
+                        <td class="muted">@nota.FechaEntrada.ToString("dd MMM, yyyy")</td>
+                        <td>@nota.Cliente?.NombreCompleto</td>
+                        <td class="muted">
+                            @nota.Vehiculo?.Marca @nota.Vehiculo?.Modelo @nota.Vehiculo?.Anio
+                            <br><span style="font-size:11px;font-weight:600;color:var(--primary-container)">@nota.Vehiculo?.Placa</span>
+                        </td>
+                        <td class="muted" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">@nota.MotivoIngreso</td>
+                        <td class="muted">@(nota.FechaSalidaEstimada?.ToString("dd MMM, yyyy") ?? "—")</td>
+                        <td>
+                            @{
+                                var (cls, txt) = nota.Estado switch {
+                                    EstadoServicio.EnProgreso => ("chip-progreso", "En Progreso"),
+                                    EstadoServicio.Cotizacion => ("chip-cotizacion", "Cotización"),
+                                    EstadoServicio.Finalizado => ("chip-finalizado", "Finalizado"),
+                                    EstadoServicio.Vencido    => ("chip-vencido",    "Vencido"),
+                                    _ => ("", "")
+                                };
+                            }
+                            <span class="chip @cls">@txt</span>
+                        </td>
+                        <td class="right fw-semibold">$@nota.Total.ToString("N2")</td>
+                        <td style="text-align:right">
+                            <a asp-action="Details" asp-route-id="@nota.Id" class="btn-icon-dn">
+                                <span class="material-icons-round" style="font-size:18px">arrow_forward</span>
+                            </a>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="9" style="text-align:center;padding:40px;color:var(--on-surface-variant)">
+                        <span class="material-icons-round" style="font-size:40px;display:block;margin-bottom:8px;opacity:.3">history</span>
+                        No hay notas de servicio registradas.
+                    </td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

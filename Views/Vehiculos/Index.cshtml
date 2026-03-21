@@ -1,0 +1,101 @@
+@model IEnumerable<DanimecApp.Models.Vehiculo>
+@{
+    ViewData["Title"] = "Vehículos";
+    var clientes = ViewBag.Clientes as Microsoft.AspNetCore.Mvc.Rendering.SelectList;
+}
+
+<div class="page-header">
+    <div class="d-flex align-center gap-16">
+        <div>
+            <h1 class="page-title">Vehículos</h1>
+            <p class="page-subtitle">@Model.Count() vehículos registrados</p>
+        </div>
+        <div class="ms-auto">
+            <a asp-action="Create" class="btn-primary-dn">
+                <span class="material-icons-round" style="font-size:18px">directions_car</span>
+                Nuevo Vehículo
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="page-body">
+
+    <!-- Search & Filter -->
+    <form method="get" class="d-flex align-center gap-12 mb-24" style="flex-wrap:wrap">
+        <div class="search-bar">
+            <span class="material-icons-round">search</span>
+            <input type="text" name="buscar" placeholder="Buscar por marca, modelo o placa..." value="@ViewBag.Buscar" />
+        </div>
+        <select name="clienteId" class="form-control-dn" style="width:220px">
+            <option value="">Todos los clientes</option>
+            @if (clientes != null)
+            {
+                foreach (var item in clientes)
+                {
+                    <option value="@item.Value" selected="@(item.Value == ViewBag.ClienteId?.ToString())">@item.Text</option>
+                }
+            }
+        </select>
+        <button type="submit" class="btn-primary-dn" style="padding:8px 16px">Filtrar</button>
+        <a asp-action="Index" class="btn-ghost-dn" style="padding:7px 14px;font-size:12px">Limpiar</a>
+    </form>
+
+    <div class="data-section">
+        <div class="section-header">
+            <div class="section-title">Registro de Vehículos</div>
+        </div>
+        <table class="dn-table">
+            <thead>
+                <tr>
+                    <th>Marca / Modelo</th>
+                    <th>Año</th>
+                    <th>Placa</th>
+                    <th>Color</th>
+                    <th>KM Actual</th>
+                    <th>Propietario</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var v in Model)
+                {
+                    <tr>
+                        <td class="fw-semibold">@v.Marca @v.Modelo</td>
+                        <td class="muted">@(v.Anio?.ToString() ?? "—")</td>
+                        <td style="color:var(--primary-container);font-weight:600">@(v.Placa ?? "—")</td>
+                        <td class="muted">@(v.Color ?? "—")</td>
+                        <td class="muted">@(v.KmActual.HasValue ? v.KmActual.Value.ToString("N0") + " km" : "—")</td>
+                        <td>
+                            <a asp-controller="Clientes" asp-action="Details" asp-route-id="@v.ClienteId"
+                               style="color:var(--primary-container);font-weight:500;text-decoration:none">
+                                @v.Cliente?.NombreCompleto
+                            </a>
+                        </td>
+                        <td style="text-align:right">
+                            <div class="d-flex gap-8 align-center" style="justify-content:flex-end">
+                                <a asp-action="Edit" asp-route-id="@v.Id" class="btn-icon-dn" title="Editar">
+                                    <span class="material-icons-round" style="font-size:18px">edit</span>
+                                </a>
+                                <form asp-action="Delete" asp-route-id="@v.Id" method="post" style="display:inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn-icon-dn danger"
+                                            onclick="return confirm('¿Eliminar el vehículo @v.Placa?')">
+                                        <span class="material-icons-round" style="font-size:18px">delete</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="7" style="text-align:center;padding:40px;color:var(--on-surface-variant)">
+                        <span class="material-icons-round" style="font-size:40px;display:block;margin-bottom:8px;opacity:.3">directions_car</span>
+                        No hay vehículos registrados.
+                    </td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

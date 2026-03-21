@@ -1,0 +1,173 @@
+@model IEnumerable<DanimecApp.Models.NotaServicio>
+@using DanimecApp.Models
+@{
+    ViewData["Title"] = "Dashboard";
+    var alertas = ViewBag.AlertasInventario as IEnumerable<InventarioItem> ?? Enumerable.Empty<InventarioItem>();
+}
+
+<div class="page-header">
+    <div class="d-flex align-center gap-16">
+        <div>
+            <h1 class="page-title">@ViewBag.TallerNombre</h1>
+            <p class="page-subtitle">@ViewBag.TallerSubtitulo — Panel de Control</p>
+        </div>
+        <div class="ms-auto">
+            <a asp-controller="NotasServicio" asp-action="Create" class="btn-primary-dn">
+                <span class="material-icons-round" style="font-size:18px">add_notes</span>
+                Nueva Nota de Servicio
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="page-body">
+
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-icon blue">
+                <span class="material-icons-round">build_circle</span>
+            </div>
+            <div>
+                <div class="kpi-value">@ViewBag.EnProgreso</div>
+                <div class="kpi-label">En Progreso</div>
+            </div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-icon amber">
+                <span class="material-icons-round">request_quote</span>
+            </div>
+            <div>
+                <div class="kpi-value">@ViewBag.Cotizaciones</div>
+                <div class="kpi-label">Cotizaciones Pendientes</div>
+            </div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-icon green">
+                <span class="material-icons-round">task_alt</span>
+            </div>
+            <div>
+                <div class="kpi-value">@ViewBag.FinalizadosHoy</div>
+                <div class="kpi-label">Finalizados Hoy</div>
+            </div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-icon red">
+                <span class="material-icons-round">report_problem</span>
+            </div>
+            <div>
+                <div class="kpi-value">@ViewBag.Vencidos</div>
+                <div class="kpi-label">Servicios Vencidos</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div style="display:grid;grid-template-columns:1fr 300px;gap:20px;align-items:start">
+
+        <!-- Recent Service Notes -->
+        <div class="data-section">
+            <div class="section-header">
+                <div>
+                    <div class="section-title">Notas de Servicio Recientes</div>
+                    <div class="section-subtitle">Estado en tiempo real de las operaciones del taller</div>
+                </div>
+                <a asp-controller="NotasServicio" asp-action="Index" class="btn-ghost-dn" style="font-size:12px">
+                    Ver todas <span class="material-icons-round" style="font-size:16px">chevron_right</span>
+                </a>
+            </div>
+            <table class="dn-table">
+                <thead>
+                    <tr>
+                        <th>N° Orden</th>
+                        <th>Cliente</th>
+                        <th>Vehículo</th>
+                        <th>Motivo</th>
+                        <th>Estado</th>
+                        <th class="right">Total</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var nota in Model)
+                    {
+                        <tr>
+                            <td class="fw-semibold" style="color:var(--primary-container)">@nota.Numero</td>
+                            <td>@nota.Cliente?.NombreCompleto</td>
+                            <td class="muted">
+                                @nota.Vehiculo?.Marca @nota.Vehiculo?.Modelo
+                                <br><span style="font-size:11px">@nota.Vehiculo?.Placa</span>
+                            </td>
+                            <td class="muted" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">@nota.MotivoIngreso</td>
+                            <td>
+                                @{
+                                    var (chipClass, chipText) = nota.Estado switch {
+                                        EstadoServicio.EnProgreso => ("chip-progreso", "En Progreso"),
+                                        EstadoServicio.Cotizacion => ("chip-cotizacion", "Cotización"),
+                                        EstadoServicio.Finalizado => ("chip-finalizado", "Finalizado"),
+                                        EstadoServicio.Vencido    => ("chip-vencido",    "Vencido"),
+                                        _ => ("", "")
+                                    };
+                                }
+                                <span class="chip @chipClass">@chipText</span>
+                            </td>
+                            <td class="right fw-semibold">$@nota.Total.ToString("N2")</td>
+                            <td>
+                                <a asp-controller="NotasServicio" asp-action="Details" asp-route-id="@nota.Id"
+                                   class="btn-icon-dn" title="Ver detalle">
+                                    <span class="material-icons-round" style="font-size:18px">arrow_forward</span>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr><td colspan="7" style="text-align:center;padding:32px;color:var(--on-surface-variant)">
+                            No hay notas de servicio aún.
+                        </td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Insights Column -->
+        <div>
+            @if (alertas.Any())
+            {
+                <div class="diagnostic-card mb-24">
+                    <div class="diag-header">
+                        <span class="material-icons-round" style="color:var(--error)">warning</span>
+                        <span class="diag-header-title">Alertas de Inventario</span>
+                    </div>
+                    <div class="diag-body">
+                        @foreach (var alerta in alertas)
+                        {
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                                <span>@alerta.Nombre</span>
+                                <span class="chip chip-alert">Stock: @alerta.StockActual</span>
+                            </div>
+                        }
+                        <a asp-controller="Inventario" asp-action="Index" class="btn-ghost-dn" style="margin-top:12px;width:100%;justify-content:center;font-size:12px">
+                            Ver Inventario
+                        </a>
+                    </div>
+                </div>
+            }
+
+            <div class="diagnostic-card">
+                <div class="diag-header">
+                    <span class="material-icons-round">analytics</span>
+                    <span class="diag-header-title">Diagnóstico Técnico</span>
+                </div>
+                <div class="diag-body">
+                    <div style="font-weight:600;color:var(--on-surface);margin-bottom:4px">Calibración de Sensores Electrónicos</div>
+                    <div style="font-size:12px;color:var(--primary-container)">+12% vs mes anterior</div>
+                    <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--outline-variant)">
+                        <div style="font-weight:600;color:var(--on-surface);margin-bottom:4px">Capacidad del Taller</div>
+                        <div style="font-size:12px;color:var(--on-surface-variant)">Ocupación en tiempo real de los puestos de trabajo</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

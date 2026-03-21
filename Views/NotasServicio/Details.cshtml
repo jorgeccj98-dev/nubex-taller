@@ -1,0 +1,414 @@
+@model DanimecApp.Models.NotaServicio
+@using DanimecApp.Models
+@{
+    ViewData["Title"] = $"Nota {Model.Numero}";
+    var estados = Enum.GetValues<EstadoServicio>();
+}
+
+<div class="page-header">
+    <div class="d-flex align-center gap-16">
+        <a asp-controller="NotasServicio" asp-action="Index" class="btn-icon-dn">
+            <span class="material-icons-round">arrow_back</span>
+        </a>
+        <div>
+            <h1 class="page-title">@Model.Numero</h1>
+            <p class="page-subtitle">Detalle y Gestión de Servicio</p>
+        </div>
+        <div class="ms-auto d-flex gap-8 align-center">
+            @{
+                var (chipCls, chipTxt) = Model.Estado switch {
+                    EstadoServicio.EnProgreso => ("chip-progreso", "En Progreso"),
+                    EstadoServicio.Cotizacion => ("chip-cotizacion", "Cotización"),
+                    EstadoServicio.Finalizado => ("chip-finalizado", "Finalizado"),
+                    EstadoServicio.Vencido    => ("chip-vencido",    "Vencido"),
+                    _ => ("", "")
+                };
+            }
+            <span class="chip @chipCls" style="font-size:13px;padding:6px 16px">@chipTxt</span>
+            <!-- Change status -->
+            <form asp-action="CambiarEstado" method="post" class="d-flex gap-8 align-center">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.Id" />
+                <select name="estado" class="form-control-dn" style="min-width:140px;padding:8px 12px">
+                    @foreach (var est in estados)
+                    {
+                        <option value="@((int)est)" selected="@(est == Model.Estado)">
+                            @(est switch { EstadoServicio.EnProgreso=>"En Progreso", EstadoServicio.Cotizacion=>"Cotización", EstadoServicio.Finalizado=>"Finalizado", EstadoServicio.Vencido=>"Vencido", _=>"" })
+                        </option>
+                    }
+                </select>
+                <button type="submit" class="btn-ghost-dn" style="padding:8px 14px;font-size:12px">Actualizar Estado</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="page-body">
+<div class="detail-layout">
+
+    <!-- LEFT COLUMN -->
+    <div>
+
+        <!-- Client & Vehicle Info -->
+        <div class="form-card mb-16">
+            <div class="form-section-title">Información del Cliente y Vehículo</div>
+            <div class="info-grid" style="margin-bottom:16px">
+                <div class="info-field">
+                    <div class="info-label">Cliente</div>
+                    <div class="info-value">@Model.Cliente?.NombreCompleto</div>
+                </div>
+                <div class="info-field">
+                    <div class="info-label">Empresa</div>
+                    <div class="info-value">@(Model.Cliente?.Empresa ?? "—")</div>
+                </div>
+                <div class="info-field">
+                    <div class="info-label">Teléfono</div>
+                    <div class="info-value">@(Model.Cliente?.Telefono ?? "—")</div>
+                </div>
+                <div class="info-field">
+                    <div class="info-label">Email</div>
+                    <div class="info-value">@(Model.Cliente?.Email ?? "—")</div>
+                </div>
+            </div>
+            <div class="info-grid">
+                <div class="info-field">
+                    <div class="info-label">Vehículo</div>
+                    <div class="info-value">@Model.Vehiculo?.Marca @Model.Vehiculo?.Modelo @Model.Vehiculo?.Anio</div>
+                </div>
+                <div class="info-field">
+                    <div class="info-label">Placa</div>
+                    <div class="info-value" style="color:var(--primary-container)">@Model.Vehiculo?.Placa</div>
+                </div>
+                <div class="info-field">
+                    <div class="info-label">Color</div>
+                    <div class="info-value">@(Model.Vehiculo?.Color ?? "—")</div>
+                </div>
+                <div class="info-field">
+                    <div class="info-label">KM Actual</div>
+                    <div class="info-value">@(Model.Vehiculo?.KmActual?.ToString("N0") ?? "—") km</div>
+                </div>
+                <div class="info-field" style="grid-column:1/-1">
+                    <div class="info-label">Motivo de Ingreso</div>
+                    <div class="info-value" style="font-weight:400;font-size:13px">@(Model.MotivoIngreso ?? "—")</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trabajos Realizados -->
+        <div class="data-section mb-16">
+            <div class="section-header">
+                <div class="section-title">Trabajos Realizados</div>
+                <button class="btn-ghost-dn" style="font-size:12px;padding:6px 12px" onclick="toggleModal('modalTrabajo')">
+                    <span class="material-icons-round" style="font-size:16px">add</span> Agregar
+                </button>
+            </div>
+            <table class="dn-table">
+                <thead>
+                    <tr>
+                        <th>Descripción</th>
+                        <th>Técnico</th>
+                        <th class="right">Precio Unit.</th>
+                        <th class="right">Cant.</th>
+                        <th class="right">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var t in Model.TrabajosRealizados)
+                    {
+                        <tr>
+                            <td>@t.Descripcion</td>
+                            <td class="muted">@(t.Tecnico ?? "—")</td>
+                            <td class="right">$@t.PrecioUnitario.ToString("N2")</td>
+                            <td class="right">@t.Cantidad</td>
+                            <td class="right fw-semibold">$@((t.PrecioUnitario * t.Cantidad).ToString("N2"))</td>
+                        </tr>
+                    }
+                    @if (!Model.TrabajosRealizados.Any())
+                    {
+                        <tr><td colspan="5" style="text-align:center;padding:24px;color:var(--on-surface-variant)">Sin trabajos registrados.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Repuestos y Materiales -->
+        <div class="data-section mb-16">
+            <div class="section-header">
+                <div class="section-title">Repuestos y Materiales</div>
+                <button class="btn-ghost-dn" style="font-size:12px;padding:6px 12px" onclick="toggleModal('modalRepuesto')">
+                    <span class="material-icons-round" style="font-size:16px">add</span> Agregar
+                </button>
+            </div>
+            <table class="dn-table">
+                <thead>
+                    <tr>
+                        <th>Descripción</th>
+                        <th class="right">Precio Unit.</th>
+                        <th class="right">Cant.</th>
+                        <th class="right">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var r in Model.RepuestosServicios)
+                    {
+                        <tr>
+                            <td>
+                                @r.Descripcion
+                                @if (r.InventarioItem != null)
+                                {
+                                    <span class="chip chip-progreso" style="margin-left:8px;font-size:10px">@r.InventarioItem.Codigo</span>
+                                }
+                            </td>
+                            <td class="right">$@r.PrecioUnitario.ToString("N2")</td>
+                            <td class="right">@r.Cantidad</td>
+                            <td class="right fw-semibold">$@((r.PrecioUnitario * r.Cantidad).ToString("N2"))</td>
+                        </tr>
+                    }
+                    @if (!Model.RepuestosServicios.Any())
+                    {
+                        <tr><td colspan="4" style="text-align:center;padding:24px;color:var(--on-surface-variant)">Sin repuestos registrados.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Trabajos Externos -->
+        <div class="data-section">
+            <div class="section-header">
+                <div class="section-title">Trabajos Externos</div>
+                <button class="btn-ghost-dn" style="font-size:12px;padding:6px 12px" onclick="toggleModal('modalExterno')">
+                    <span class="material-icons-round" style="font-size:16px">add</span> Agregar
+                </button>
+            </div>
+            <table class="dn-table">
+                <thead>
+                    <tr>
+                        <th>Proveedor</th>
+                        <th>Descripción</th>
+                        <th>Factura</th>
+                        <th class="right">Monto</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var e in Model.TrabajosExternos)
+                    {
+                        <tr>
+                            <td class="fw-semibold">@e.Proveedor</td>
+                            <td class="muted">@e.Descripcion</td>
+                            <td>
+                                <span class="chip @(e.FacturaAdjunta ? "chip-finalizado" : "chip-vencido")">
+                                    @(e.FacturaAdjunta ? "Adjunta" : "Pendiente")
+                                </span>
+                            </td>
+                            <td class="right fw-semibold">$@e.Monto.ToString("N2")</td>
+                        </tr>
+                    }
+                    @if (!Model.TrabajosExternos.Any())
+                    {
+                        <tr><td colspan="4" style="text-align:center;padding:24px;color:var(--on-surface-variant)">Sin trabajos externos.</td></tr>
+                    }
+                </tbody>
+            </table>
+            @if (Model.TrabajosExternos.Any())
+            {
+                <div class="diagnostic-card" style="margin:16px">
+                    <div class="diag-header">
+                        <span class="material-icons-round">info</span>
+                        <span class="diag-header-title">Aviso</span>
+                    </div>
+                    <div class="diag-body">Asegúrese de adjuntar todas las facturas de proveedores externos antes de proceder a la revisión final.</div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- RIGHT SIDEBAR -->
+    <div class="detail-sidebar">
+        <div class="summary-box">
+            <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;opacity:.7;margin-bottom:16px">Resumen del Servicio</div>
+            <div class="s-row">
+                <span class="s-label">Cliente</span>
+                <span class="s-value">@Model.Cliente?.NombreCompleto</span>
+            </div>
+            <div class="s-row">
+                <span class="s-label">Vehículo</span>
+                <span class="s-value">@Model.Vehiculo?.Marca @Model.Vehiculo?.Modelo (@Model.Vehiculo?.Placa)</span>
+            </div>
+            <div class="s-row">
+                <span class="s-label">Fecha Entrada</span>
+                <span class="s-value">@Model.FechaEntrada.ToString("dd MMM yyyy")</span>
+            </div>
+            <div class="s-row">
+                <span class="s-label">Trabajos MO</span>
+                <span class="s-value">$@Model.TrabajosRealizados.Sum(t => t.PrecioUnitario * t.Cantidad).ToString("N2")</span>
+            </div>
+            <div class="s-row">
+                <span class="s-label">Repuestos</span>
+                <span class="s-value">$@Model.RepuestosServicios.Sum(r => r.PrecioUnitario * r.Cantidad).ToString("N2")</span>
+            </div>
+            <div class="s-row">
+                <span class="s-label">Trabajos Ext.</span>
+                <span class="s-value">$@Model.TrabajosExternos.Sum(e => e.Monto).ToString("N2")</span>
+            </div>
+            <div class="s-row">
+                <span class="s-label">SubTotal</span>
+                <span class="s-value">$@Model.SubTotal.ToString("N2")</span>
+            </div>
+            <div class="s-row">
+                <span class="s-label">IVA (16%)</span>
+                <span class="s-value">$@Model.Iva.ToString("N2")</span>
+            </div>
+            <div class="s-row total">
+                <span class="s-label">TOTAL</span>
+                <span class="s-value">$@Model.Total.ToString("N2")</span>
+            </div>
+        </div>
+    </div>
+
+</div>
+</div>
+
+<!-- ══ MODALS ══ -->
+<div id="modalTrabajo" style="display:none;position:fixed;inset:0;background:rgba(25,27,34,.5);z-index:200;align-items:center;justify-content:center">
+    <div style="background:#fff;border-radius:16px;padding:28px;width:480px;max-width:95vw;box-shadow:0 24px 48px rgba(0,0,0,.2)">
+        <div class="form-section-title">Agregar Trabajo Realizado</div>
+        <form asp-action="AddTrabajo" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="notaId" value="@Model.Id" />
+            <div class="form-group mb-16">
+                <label class="form-label">Descripción</label>
+                <input name="descripcion" required class="form-control-dn" placeholder="Ej. Cambio de pastillas de freno..." />
+            </div>
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label class="form-label">Técnico</label>
+                    <input name="tecnico" class="form-control-dn" placeholder="Nombre del técnico" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Precio Unitario</label>
+                    <input name="precioUnitario" type="number" step="0.01" required class="form-control-dn" value="0" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Cantidad</label>
+                    <input name="cantidad" type="number" required class="form-control-dn" value="1" min="1" />
+                </div>
+            </div>
+            <div class="d-flex gap-8" style="margin-top:20px">
+                <button type="submit" class="btn-primary-dn">Guardar</button>
+                <button type="button" class="btn-ghost-dn" onclick="toggleModal('modalTrabajo')">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="modalRepuesto" style="display:none;position:fixed;inset:0;background:rgba(25,27,34,.5);z-index:200;align-items:center;justify-content:center">
+    <div style="background:#fff;border-radius:16px;padding:28px;width:520px;max-width:95vw;box-shadow:0 24px 48px rgba(0,0,0,.2)">
+        <div class="form-section-title">Agregar Repuesto / Material</div>
+        <form asp-action="AddRepuesto" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="notaId" value="@Model.Id" />
+            <input type="hidden" name="inventarioItemId" id="invItemId" />
+            <div class="form-group mb-16">
+                <label class="form-label">Buscar en Inventario (opcional)</label>
+                <div class="search-bar" style="max-width:100%">
+                    <span class="material-icons-round">search</span>
+                    <input type="text" id="invSearch" placeholder="Escribir nombre o código..." autocomplete="off" />
+                </div>
+                <div id="invResults" style="background:#fff;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.12);margin-top:4px;display:none;max-height:200px;overflow-y:auto"></div>
+            </div>
+            <div class="form-group mb-16">
+                <label class="form-label">Descripción</label>
+                <input name="descripcion" id="invDesc" required class="form-control-dn" placeholder="Nombre del repuesto..." />
+            </div>
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label class="form-label">Precio Unitario</label>
+                    <input name="precioUnitario" id="invPrecio" type="number" step="0.01" required class="form-control-dn" value="0" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Cantidad</label>
+                    <input name="cantidad" type="number" required class="form-control-dn" value="1" min="1" />
+                </div>
+            </div>
+            <div class="d-flex gap-8" style="margin-top:20px">
+                <button type="submit" class="btn-primary-dn">Guardar</button>
+                <button type="button" class="btn-ghost-dn" onclick="toggleModal('modalRepuesto')">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="modalExterno" style="display:none;position:fixed;inset:0;background:rgba(25,27,34,.5);z-index:200;align-items:center;justify-content:center">
+    <div style="background:#fff;border-radius:16px;padding:28px;width:480px;max-width:95vw;box-shadow:0 24px 48px rgba(0,0,0,.2)">
+        <div class="form-section-title">Agregar Trabajo Externo</div>
+        <form asp-action="AddExterno" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="notaId" value="@Model.Id" />
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label class="form-label">Proveedor</label>
+                    <input name="proveedor" required class="form-control-dn" placeholder="Nombre del proveedor" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Monto</label>
+                    <input name="monto" type="number" step="0.01" required class="form-control-dn" value="0" />
+                </div>
+                <div class="form-group form-grid-full">
+                    <label class="form-label">Descripción</label>
+                    <input name="descripcion" required class="form-control-dn" placeholder="Servicio realizado externamente..." />
+                </div>
+                <div class="form-group" style="flex-direction:row;align-items:center;gap:10px;padding-top:12px">
+                    <input type="checkbox" name="facturaAdjunta" value="true" id="factAdj" style="width:16px;height:16px;accent-color:var(--primary-container)" />
+                    <label for="factAdj" class="form-label" style="text-transform:none;font-size:13px;cursor:pointer">Factura Adjunta</label>
+                </div>
+            </div>
+            <div class="d-flex gap-8" style="margin-top:20px">
+                <button type="submit" class="btn-primary-dn">Guardar</button>
+                <button type="button" class="btn-ghost-dn" onclick="toggleModal('modalExterno')">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+function toggleModal(id) {
+    const m = document.getElementById(id);
+    m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
+}
+
+// Inventory search
+let searchTimeout;
+document.getElementById('invSearch')?.addEventListener('input', function() {
+    clearTimeout(searchTimeout);
+    const term = this.value.trim();
+    const results = document.getElementById('invResults');
+    if (term.length < 2) { results.style.display = 'none'; return; }
+    searchTimeout = setTimeout(() => {
+        fetch(`/Inventario/Buscar?term=${encodeURIComponent(term)}`)
+            .then(r => r.json())
+            .then(data => {
+                results.innerHTML = '';
+                if (!data.length) {
+                    results.innerHTML = '<div style="padding:12px;color:var(--on-surface-variant)">Sin resultados</div>';
+                } else {
+                    data.forEach(item => {
+                        const div = document.createElement('div');
+                        div.style.cssText = 'padding:10px 16px;cursor:pointer;border-bottom:1px solid var(--surface-container);font-size:13px';
+                        div.innerHTML = `<strong>${item.nombre}</strong> <span style="color:var(--on-surface-variant)">[${item.codigo}] — $${item.precioVenta} — Stock: ${item.stockActual}</span>`;
+                        div.addEventListener('click', () => {
+                            document.getElementById('invItemId').value = item.id;
+                            document.getElementById('invDesc').value = item.nombre;
+                            document.getElementById('invPrecio').value = item.precioVenta;
+                            document.getElementById('invSearch').value = item.nombre;
+                            results.style.display = 'none';
+                        });
+                        results.appendChild(div);
+                    });
+                }
+                results.style.display = 'block';
+            });
+    }, 300);
+});
+</script>
+}

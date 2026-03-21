@@ -1,0 +1,79 @@
+@model DanimecApp.Models.Vehiculo
+@{
+    ViewData["Title"] = "Nuevo Vehículo";
+}
+
+<div class="page-header">
+    <div class="d-flex align-center gap-16">
+        <a asp-action="Index" class="btn-icon-dn">
+            <span class="material-icons-round">arrow_back</span>
+        </a>
+        <div>
+            <h1 class="page-title">Nuevo Vehículo</h1>
+            <p class="page-subtitle">Registrar un vehículo en el sistema.</p>
+        </div>
+    </div>
+</div>
+
+<div class="page-body">
+<form asp-action="Create" method="post" style="max-width:780px">
+    @Html.AntiForgeryToken()
+
+    <div class="form-card">
+        <div class="form-section-title">Propietario</div>
+        <div class="form-group">
+            <label class="form-label">Cliente *</label>
+            <select asp-for="ClienteId" asp-items="ViewBag.Clientes" class="form-control-dn" style="max-width:480px">
+                <option value="">— Seleccionar cliente —</option>
+            </select>
+            <span asp-validation-for="ClienteId" class="field-validation-error"></span>
+        </div>
+    </div>
+
+    <div class="form-card">
+        <div class="form-section-title">Datos del Vehículo</div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">Marca *</label>
+                <input asp-for="Marca" required class="form-control-dn" placeholder="Ej. Toyota" list="marcasList" />
+                <datalist id="marcasList">
+                    <option>Toyota</option><option>Honda</option><option>Ford</option>
+                    <option>Chevrolet</option><option>Volkswagen</option><option>BMW</option>
+                    <option>Mercedes-Benz</option><option>Audi</option><option>Hyundai</option>
+                    <option>Kia</option><option>Nissan</option><option>Mazda</option><option>Porsche</option>
+                </datalist>
+                <span asp-validation-for="Marca" class="field-validation-error"></span>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Modelo *</label>
+                <input asp-for="Modelo" required class="form-control-dn" placeholder="Ej. Hilux" />
+                <span asp-validation-for="Modelo" class="field-validation-error"></span>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Año</label>
+                <input asp-for="Anio" type="number" class="form-control-dn" placeholder="Ej. 2022" min="1920" max="2030" />
+            </div>
+            <div class="form-group">
+                <label class="form-label">Placa</label>
+                <input asp-for="Placa" class="form-control-dn" placeholder="Ej. ABC-1234" />
+            </div>
+            <div class="form-group">
+                <label class="form-label">Color</label>
+                <input asp-for="Color" class="form-control-dn" placeholder="Ej. Blanco" />
+            </div>
+            <div class="form-group">
+                <label class="form-label">KM Actual</label>
+                <input asp-for="KmActual" type="number" class="form-control-dn" placeholder="Ej. 45000" min="0" />
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex gap-8">
+        <button type="submit" class="btn-primary-dn">
+            <span class="material-icons-round" style="font-size:18px">directions_car</span>
+            Registrar Vehículo
+        </button>
+        <a asp-action="Index" class="btn-ghost-dn">Cancelar</a>
+    </div>
+</form>
+</div>

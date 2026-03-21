@@ -1,0 +1,76 @@
+@model DanimecApp.Models.InventarioItem
+@{
+    ViewData["Title"] = "Editar Item";
+}
+
+<div class="page-header">
+    <div class="d-flex align-center gap-16">
+        <a asp-action="Index" class="btn-icon-dn">
+            <span class="material-icons-round">arrow_back</span>
+        </a>
+        <div>
+            <h1 class="page-title">Editar Item de Inventario</h1>
+            <p class="page-subtitle">@Model.Nombre</p>
+        </div>
+    </div>
+</div>
+
+<div class="page-body">
+<form asp-action="Edit" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+    <div class="form-card">
+        <div class="form-section-title">Información del Item</div>
+        <div class="form-grid-2">
+            <div class="form-group">
+                <label class="form-label">Código</label>
+                <input asp-for="Codigo" class="form-control-dn" />
+            </div>
+            <div class="form-group">
+                <label class="form-label">Categoría</label>
+                <input asp-for="Categoria" class="form-control-dn" />
+            </div>
+            <div class="form-group form-grid-full">
+                <label class="form-label">Nombre *</label>
+                <input asp-for="Nombre" required class="form-control-dn" />
+                <span asp-validation-for="Nombre" class="field-validation-error"></span>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Stock Actual</label>
+                <input asp-for="StockActual" type="number" class="form-control-dn" />
+            </div>
+            <div class="form-group">
+                <label class="form-label">Stock Mínimo</label>
+                <input asp-for="StockMinimo" type="number" class="form-control-dn" />
+            </div>
+            <div class="form-group">
+                <label class="form-label">Precio Compra</label>
+                <input asp-for="PrecioCompra" type="number" step="0.01" class="form-control-dn" />
+            </div>
+            <div class="form-group">
+                <label class="form-label">Precio Venta</label>
+                <input asp-for="PrecioVenta" type="number" step="0.01" class="form-control-dn" />
+            </div>
+            <div class="form-group form-grid-full">
+                <label class="form-label">Proveedor</label>
+                <input asp-for="Proveedor" class="form-control-dn" />
+            </div>
+        </div>
+    </div>
+    <div class="d-flex gap-8">
+        <button type="submit" class="btn-primary-dn">
+            <span class="material-icons-round" style="font-size:18px">save</span>
+            Guardar Cambios
+        </button>
+        <a asp-action="Index" class="btn-ghost-dn">Cancelar</a>
+        <form asp-action="Delete" asp-route-id="@Model.Id" method="post" style="margin-left:auto">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn-ghost-dn" style="color:var(--error);border-color:var(--error)"
+                    onclick="return confirm('¿Eliminar este item del inventario?')">
+                <span class="material-icons-round" style="font-size:18px">delete</span>
+                Eliminar
+            </button>
+        </form>
+    </div>
+</form>
+</div>

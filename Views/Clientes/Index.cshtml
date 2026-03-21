@@ -1,0 +1,101 @@
+@model IEnumerable<DanimecApp.Models.Cliente>
+@{
+    ViewData["Title"] = "Clientes";
+}
+
+<div class="page-header">
+    <div class="d-flex align-center gap-16">
+        <div>
+            <h1 class="page-title">Clientes</h1>
+            <p class="page-subtitle">@Model.Count() clientes registrados</p>
+        </div>
+        <div class="ms-auto d-flex gap-8">
+            <a asp-controller="Vehiculos" asp-action="Create" class="btn-ghost-dn">
+                <span class="material-icons-round" style="font-size:18px">directions_car</span>
+                Nuevo Vehículo
+            </a>
+            <a asp-action="Create" class="btn-primary-dn">
+                <span class="material-icons-round" style="font-size:18px">person_add</span>
+                Nuevo Cliente
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="page-body">
+
+    <!-- Search -->
+    <form method="get" class="d-flex align-center gap-12 mb-24">
+        <div class="search-bar">
+            <span class="material-icons-round">search</span>
+            <input type="text" name="buscar" placeholder="Buscar por nombre, empresa o email..." value="@ViewBag.Buscar" />
+        </div>
+        <button type="submit" class="btn-primary-dn" style="padding:8px 16px">Buscar</button>
+        @if (!string.IsNullOrEmpty(ViewBag.Buscar as string))
+        {
+            <a asp-action="Index" class="btn-ghost-dn" style="padding:7px 14px;font-size:12px">Limpiar</a>
+        }
+    </form>
+
+    <div class="data-section">
+        <div class="section-header">
+            <div class="section-title">Registro de Clientes</div>
+        </div>
+        <table class="dn-table">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Empresa</th>
+                    <th>Teléfono</th>
+                    <th>Email</th>
+                    <th>Vehículos</th>
+                    <th>Servicios</th>
+                    <th>Registro</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var c in Model)
+                {
+                    <tr>
+                        <td class="fw-semibold">@c.NombreCompleto</td>
+                        <td class="muted">@(c.Empresa ?? "—")</td>
+                        <td class="muted">@(c.Telefono ?? "—")</td>
+                        <td class="muted">@(c.Email ?? "—")</td>
+                        <td>
+                            <span class="chip chip-progreso">@c.Vehiculos.Count</span>
+                        </td>
+                        <td>
+                            <span class="chip chip-finalizado">@c.NotasServicio.Count</span>
+                        </td>
+                        <td class="muted">@c.FechaRegistro.ToString("dd MMM yyyy")</td>
+                        <td style="text-align:right">
+                            <div class="d-flex gap-8 align-center" style="justify-content:flex-end">
+                                <a asp-action="Details" asp-route-id="@c.Id" class="btn-icon-dn" title="Ver detalle">
+                                    <span class="material-icons-round" style="font-size:18px">visibility</span>
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@c.Id" class="btn-icon-dn" title="Editar">
+                                    <span class="material-icons-round" style="font-size:18px">edit</span>
+                                </a>
+                                <form asp-action="Delete" asp-route-id="@c.Id" method="post" style="display:inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn-icon-dn danger" title="Eliminar"
+                                            onclick="return confirm('¿Eliminar al cliente @c.NombreCompleto?')">
+                                        <span class="material-icons-round" style="font-size:18px">delete</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="8" style="text-align:center;padding:40px;color:var(--on-surface-variant)">
+                        <span class="material-icons-round" style="font-size:40px;display:block;margin-bottom:8px;opacity:.3">group</span>
+                        No hay clientes registrados.
+                    </td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] — DANIMEC</title>
+    <link rel="stylesheet" href="~/css/danimec.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+<div class="app-wrapper">
+
+    <!-- ══ SIDEBAR ══ -->
+    <nav class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-name">DANIMEC</div>
+            <div class="brand-sub">Precision Workshop</div>
+        </div>
+
+        <div class="sidebar-nav">
+            <span class="nav-label">Principal</span>
+            <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")"
+               asp-controller="Dashboard" asp-action="Index">
+                <span class="material-icons-round">dashboard</span>
+                Dashboard
+            </a>
+            <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "NotasServicio" && ViewContext.RouteData.Values["action"]?.ToString() == "Create" ? "active" : "")"
+               asp-controller="NotasServicio" asp-action="Create">
+                <span class="material-icons-round">add_notes</span>
+                Nueva Nota
+            </a>
+            <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "NotasServicio" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
+               asp-controller="NotasServicio" asp-action="Index">
+                <span class="material-icons-round">history</span>
+                Historial de Servicios
+            </a>
+            <span class="nav-label" style="margin-top:16px">Maestros</span>
+            <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Clientes" ? "active" : "")"
+               asp-controller="Clientes" asp-action="Index">
+                <span class="material-icons-round">group</span>
+                Clientes
+            </a>
+            <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Vehiculos" ? "active" : "")"
+               asp-controller="Vehiculos" asp-action="Index">
+                <span class="material-icons-round">directions_car</span>
+                Vehículos
+            </a>
+            <span class="nav-label" style="margin-top:16px">Recursos</span>
+            <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Inventario" ? "active" : "")"
+               asp-controller="Inventario" asp-action="Index">
+                <span class="material-icons-round">handyman</span>
+                Inventario
+            </a>
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="avatar">MR</div>
+            <div>
+                <div class="user-name">Marcos Rodriguez</div>
+                <div class="user-role">Jefe Técnico</div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ══ MAIN ══ -->
+    <main class="main-content">
+        @if (TempData["Success"] != null)
+        {
+            <div style="padding:16px 32px 0">
+                <div class="toast-success">
+                    <span class="material-icons-round" style="font-size:18px">check_circle</span>
+                    @TempData["Success"]
+                </div>
+            </div>
+        }
+
+        @RenderBody()
+    </main>
+</div>
+
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

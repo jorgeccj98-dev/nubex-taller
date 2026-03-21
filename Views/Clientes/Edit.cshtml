@@ -1,0 +1,72 @@
+@model DanimecApp.Models.Cliente
+@{
+    ViewData["Title"] = $"Editar — {Model.NombreCompleto}";
+}
+
+<div class="page-header">
+    <div class="d-flex align-center gap-16">
+        <a asp-action="Index" class="btn-icon-dn">
+            <span class="material-icons-round">arrow_back</span>
+        </a>
+        <div>
+            <h1 class="page-title">Editar Cliente</h1>
+            <p class="page-subtitle">@Model.NombreCompleto</p>
+        </div>
+    </div>
+</div>
+
+<div class="page-body">
+<form asp-action="Edit" method="post" style="max-width:780px">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+
+    <div class="form-card">
+        <div class="form-section-title">Información Personal</div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">Nombre *</label>
+                <input asp-for="Nombre" required class="form-control-dn" />
+                <span asp-validation-for="Nombre" class="field-validation-error"></span>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Apellido *</label>
+                <input asp-for="Apellido" required class="form-control-dn" />
+                <span asp-validation-for="Apellido" class="field-validation-error"></span>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Empresa</label>
+                <input asp-for="Empresa" class="form-control-dn" />
+            </div>
+        </div>
+    </div>
+
+    <div class="form-card">
+        <div class="form-section-title">Datos de Contacto</div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">Teléfono</label>
+                <input asp-for="Telefono" class="form-control-dn" type="tel" />
+                <span asp-validation-for="Telefono" class="field-validation-error"></span>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input asp-for="Email" class="form-control-dn" type="email" />
+                <span asp-validation-for="Email" class="field-validation-error"></span>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Fecha de Registro</label>
+                <input asp-for="FechaRegistro" type="date" class="form-control-dn"
+                       value="@Model.FechaRegistro.ToString("yyyy-MM-dd")" />
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex gap-8">
+        <button type="submit" class="btn-primary-dn">
+            <span class="material-icons-round" style="font-size:18px">save</span>
+            Guardar Cambios
+        </button>
+        <a asp-action="Index" class="btn-ghost-dn">Cancelar</a>
+    </div>
+</form>
+</div>

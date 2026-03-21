@@ -1,0 +1,186 @@
+@model DanimecApp.Models.Cliente
+@using DanimecApp.Models
+@{
+    ViewData["Title"] = Model.NombreCompleto;
+}
+
+<div class="page-header">
+    <div class="d-flex align-center gap-16">
+        <a asp-action="Index" class="btn-icon-dn">
+            <span class="material-icons-round">arrow_back</span>
+        </a>
+        <div>
+            <h1 class="page-title">@Model.NombreCompleto</h1>
+            <p class="page-subtitle">Perfil del cliente</p>
+        </div>
+        <div class="ms-auto d-flex gap-8">
+            <a asp-controller="Vehiculos" asp-action="Create" asp-route-clienteId="@Model.Id" class="btn-ghost-dn">
+                <span class="material-icons-round" style="font-size:18px">directions_car</span>
+                Agregar Vehículo
+            </a>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn-primary-dn">
+                <span class="material-icons-round" style="font-size:18px">edit</span>
+                Editar
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="page-body">
+<div style="display:grid;grid-template-columns:1fr 280px;gap:20px;align-items:start">
+
+    <div>
+        <!-- Datos de contacto -->
+        <div class="form-card mb-16">
+            <div class="form-section-title">Datos de Contacto</div>
+            <div class="info-grid">
+                <div class="info-field">
+                    <div class="info-label">Nombre Completo</div>
+                    <div class="info-value">@Model.NombreCompleto</div>
+                </div>
+                <div class="info-field">
+                    <div class="info-label">Empresa</div>
+                    <div class="info-value">@(Model.Empresa ?? "—")</div>
+                </div>
+                <div class="info-field">
+                    <div class="info-label">Teléfono</div>
+                    <div class="info-value">@(Model.Telefono ?? "—")</div>
+                </div>
+                <div class="info-field">
+                    <div class="info-label">Email</div>
+                    <div class="info-value">@(Model.Email ?? "—")</div>
+                </div>
+                <div class="info-field">
+                    <div class="info-label">Fecha de Registro</div>
+                    <div class="info-value">@Model.FechaRegistro.ToString("dd MMM yyyy")</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vehículos -->
+        <div class="data-section mb-16">
+            <div class="section-header">
+                <div class="section-title">Vehículos (@Model.Vehiculos.Count)</div>
+                <a asp-controller="Vehiculos" asp-action="Create" asp-route-clienteId="@Model.Id"
+                   class="btn-ghost-dn" style="font-size:12px;padding:6px 12px">
+                    <span class="material-icons-round" style="font-size:16px">add</span> Agregar
+                </a>
+            </div>
+            <table class="dn-table">
+                <thead>
+                    <tr>
+                        <th>Marca / Modelo</th>
+                        <th>Año</th>
+                        <th>Placa</th>
+                        <th>Color</th>
+                        <th>KM Actual</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var v in Model.Vehiculos)
+                    {
+                        <tr>
+                            <td class="fw-semibold">@v.Marca @v.Modelo</td>
+                            <td class="muted">@(v.Anio?.ToString() ?? "—")</td>
+                            <td style="color:var(--primary-container);font-weight:600">@(v.Placa ?? "—")</td>
+                            <td class="muted">@(v.Color ?? "—")</td>
+                            <td class="muted">@(v.KmActual.HasValue ? v.KmActual.Value.ToString("N0") + " km" : "—")</td>
+                            <td>
+                                <a asp-controller="Vehiculos" asp-action="Edit" asp-route-id="@v.Id" class="btn-icon-dn">
+                                    <span class="material-icons-round" style="font-size:18px">edit</span>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Vehiculos.Any())
+                    {
+                        <tr><td colspan="6" style="text-align:center;padding:24px;color:var(--on-surface-variant)">
+                            Sin vehículos registrados.
+                        </td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Historial de Servicios -->
+        <div class="data-section">
+            <div class="section-header">
+                <div class="section-title">Historial de Servicios (@Model.NotasServicio.Count)</div>
+            </div>
+            <table class="dn-table">
+                <thead>
+                    <tr>
+                        <th>N° Orden</th>
+                        <th>Fecha</th>
+                        <th>Vehículo</th>
+                        <th>Estado</th>
+                        <th class="right">Total</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var n in Model.NotasServicio.OrderByDescending(x => x.FechaEntrada))
+                    {
+                        var (cls, txt) = n.Estado switch {
+                            EstadoServicio.EnProgreso => ("chip-progreso", "En Progreso"),
+                            EstadoServicio.Cotizacion => ("chip-cotizacion", "Cotización"),
+                            EstadoServicio.Finalizado => ("chip-finalizado", "Finalizado"),
+                            EstadoServicio.Vencido    => ("chip-vencido",    "Vencido"),
+                            _ => ("", "")
+                        };
+                        <tr>
+                            <td class="fw-semibold" style="color:var(--primary-container)">@n.Numero</td>
+                            <td class="muted">@n.FechaEntrada.ToString("dd MMM yyyy")</td>
+                            <td class="muted">@n.Vehiculo?.Marca @n.Vehiculo?.Modelo (@n.Vehiculo?.Placa)</td>
+                            <td><span class="chip @cls">@txt</span></td>
+                            <td class="right fw-semibold">$@n.Total.ToString("N2")</td>
+                            <td>
+                                <a asp-controller="NotasServicio" asp-action="Details" asp-route-id="@n.Id"
+                                   class="btn-icon-dn">
+                                    <span class="material-icons-round" style="font-size:18px">arrow_forward</span>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.NotasServicio.Any())
+                    {
+                        <tr><td colspan="6" style="text-align:center;padding:24px;color:var(--on-surface-variant)">
+                            Sin servicios registrados.
+                        </td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Sidebar stats -->
+    <div style="position:sticky;top:20px">
+        <div class="summary-box">
+            <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;opacity:.7;margin-bottom:16px">Resumen</div>
+            <div class="s-row">
+                <span class="s-label">Total Servicios</span>
+                <span class="s-value">@Model.NotasServicio.Count</span>
+            </div>
+            <div class="s-row">
+                <span class="s-label">Vehículos</span>
+                <span class="s-value">@Model.Vehiculos.Count</span>
+            </div>
+            <div class="s-row">
+                <span class="s-label">En Progreso</span>
+                <span class="s-value">@Model.NotasServicio.Count(n => n.Estado == EstadoServicio.EnProgreso)</span>
+            </div>
+            <div class="s-row total">
+                <span class="s-label">Total Facturado</span>
+                <span class="s-value">$@Model.NotasServicio.Sum(n => n.Total).ToString("N2")</span>
+            </div>
+        </div>
+        <div style="margin-top:12px">
+            <a asp-controller="NotasServicio" asp-action="Create" class="btn-primary-dn" style="width:100%;justify-content:center">
+                <span class="material-icons-round" style="font-size:18px">add_notes</span>
+                Nueva Nota de Servicio
+            </a>
+        </div>
+    </div>
+</div>
+</div>
