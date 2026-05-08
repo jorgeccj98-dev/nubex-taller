@@ -134,7 +134,7 @@
                             <td class="muted">@n.FechaEntrada.ToString("dd MMM yyyy")</td>
                             <td class="muted">@n.Vehiculo?.Marca @n.Vehiculo?.Modelo (@n.Vehiculo?.Placa)</td>
                             <td><span class="chip @cls">@txt</span></td>
-                            <td class="right fw-semibold">$@n.Total.ToString("N2")</td>
+                            <td class="right fw-semibold">Bs @n.Total.ToString("N2")</td>
                             <td>
                                 <a asp-controller="NotasServicio" asp-action="Details" asp-route-id="@n.Id"
                                    class="btn-icon-dn">
@@ -172,7 +172,7 @@
             </div>
             <div class="s-row total">
                 <span class="s-label">Total Facturado</span>
-                <span class="s-value">$@Model.NotasServicio.Sum(n => n.Total).ToString("N2")</span>
+                <span class="s-value">Bs @Model.NotasServicio.Sum(n => n.Total).ToString("N2")</span>
             </div>
         </div>
         <div style="margin-top:12px">

@@ -4,8 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
+using Microsoft.AspNetCore.Authorization;
+
 namespace DanimecApp.Controllers;
 
+[Authorize]
 public class InventarioController : Controller
 {
     private readonly DanimecDbContext _ctx;

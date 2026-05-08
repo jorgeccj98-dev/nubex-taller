@@ -1,13 +1,23 @@
 using DanimecApp.Data;
 using DanimecApp.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace DanimecApp.Data;
 
 public static class DbSeeder
 {
-    public static void Seed(DanimecDbContext ctx)
+    public static async Task SeedAsync(DanimecDbContext ctx, UserManager<IdentityUser> userManager)
     {
         ctx.Database.EnsureCreated();
+
+        // Seed Admin User
+        var adminEmail = "admin@danimec.com";
+        var adminUser = await userManager.FindByEmailAsync(adminEmail);
+        if (adminUser == null)
+        {
+            var user = new IdentityUser { UserName = adminEmail, Email = adminEmail };
+            await userManager.CreateAsync(user, "Admin123!");
+        }
 
         if (ctx.Clientes.Any()) return;
 

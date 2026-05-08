@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using DanimecApp.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace DanimecApp.Data;
 
-public class DanimecDbContext : DbContext
+public class DanimecDbContext : IdentityDbContext<IdentityUser>
 {
     public DanimecDbContext(DbContextOptions<DanimecDbContext> options) : base(options) { }
 

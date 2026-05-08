@@ -3,8 +3,11 @@ using DanimecApp.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+using Microsoft.AspNetCore.Authorization;
+
 namespace DanimecApp.Controllers;
 
+[Authorize]
 public class ClientesController : Controller
 {
     private readonly DanimecDbContext _ctx;

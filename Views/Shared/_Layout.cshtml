@@ -54,11 +54,30 @@
         </div>
 
         <div class="sidebar-footer">
-            <div class="avatar">MR</div>
-            <div>
-                <div class="user-name">Marcos Rodriguez</div>
-                <div class="user-role">Jefe Técnico</div>
-            </div>
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                var email = User.Identity.Name;
+                var initial = !string.IsNullOrEmpty(email) ? email[0].ToString().ToUpper() : "U";
+                
+                <div class="avatar" style="background-color: #3b82f6; color: white;">@initial</div>
+                <div style="flex-grow: 1; overflow: hidden;">
+                    <div class="user-name" style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;" title="@email">@email</div>
+                    <div class="user-role">Administrador</div>
+                </div>
+                <form asp-controller="Account" asp-action="Logout" method="post" style="margin: 0;">
+                    <button type="submit" style="background: none; border: none; color: #64748b; cursor: pointer; padding: 4px;" title="Cerrar sesión">
+                        <span class="material-icons-round" style="font-size: 20px;">logout</span>
+                    </button>
+                </form>
+            }
+            else
+            {
+                <div class="avatar">?</div>
+                <div>
+                    <div class="user-name">Invitado</div>
+                    <div class="user-role">No autenticado</div>
+                </div>
+            }
         </div>
     </nav>
 
