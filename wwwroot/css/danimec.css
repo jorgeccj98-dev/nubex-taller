@@ -58,6 +58,12 @@ html, body {
 }
 
 /* ─────────────── SIDEBAR ─────────────── */
+
+/* Variable para el ancho colapsado */
+:root {
+    --sidebar-collapsed-w: 64px;
+}
+
 .sidebar {
     width: var(--sidebar-w);
     background: var(--primary);
@@ -69,15 +75,56 @@ html, body {
     position: fixed;
     left: 0; top: 0;
     z-index: 100;
+    overflow: hidden;
+    /* ── Transición suave ── */
+    transition: width 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* ── Botón toggle (dentro del sidebar) ── */
+.sidebar-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px; height: 32px;
+    border-radius: var(--radius-md);
+    background: rgba(255,255,255,0.10);
+    border: none;
+    cursor: pointer;
+    color: rgba(255,255,255,0.80);
+    transition: background 0.18s ease, color 0.18s ease, transform 0.22s ease;
+    flex-shrink: 0;
+}
+
+.sidebar-toggle:hover {
+    background: rgba(255,255,255,0.20);
+    color: #fff;
+}
+
+.sidebar-toggle .material-icons-round {
+    font-size: 20px;
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Brand header ── */
 .sidebar-brand {
-    padding: 24px 20px 20px;
+    padding: 20px 16px 16px;
     border-bottom: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 72px;
+    flex-shrink: 0;
+}
+
+.brand-logo-area {
+    overflow: hidden;
+    transition: opacity 0.20s ease, width 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
 }
 
 .sidebar-brand .brand-name {
-    font-size: 22px;
+    font-size: 18px;
     font-weight: 800;
     color: #fff;
     letter-spacing: 3px;
@@ -86,7 +133,7 @@ html, body {
 }
 
 .sidebar-brand .brand-sub {
-    font-size: 10px;
+    font-size: 9px;
     color: var(--on-primary-container);
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -94,10 +141,12 @@ html, body {
     font-weight: 500;
 }
 
+/* ── Nav ── */
 .sidebar-nav {
     flex: 1;
-    padding: 16px 12px;
+    padding: 12px 8px;
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .nav-label {
@@ -108,6 +157,9 @@ html, body {
     color: rgba(255,255,255,0.4);
     padding: 8px 8px 4px;
     margin-top: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    transition: opacity 0.20s ease, height 0.20s ease, margin 0.20s ease, padding 0.20s ease;
 }
 
 .nav-item {
@@ -123,6 +175,8 @@ html, body {
     margin-bottom: 2px;
     transition: all 0.18s ease;
     position: relative;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .nav-item:hover {
@@ -148,18 +202,36 @@ html, body {
 .nav-item .material-icons-round {
     font-size: 20px;
     opacity: 0.85;
+    flex-shrink: 0;
 }
 
+/* Texto del nav-item — span implícito (el texto directo del anchor) */
+.nav-item span:not(.material-icons-round) {
+    transition: opacity 0.18s ease;
+    overflow: hidden;
+}
+
+/* ── Footer ── */
 .sidebar-footer {
-    padding: 16px;
+    padding: 14px;
     border-top: 1px solid rgba(255,255,255,0.08);
     display: flex;
     align-items: center;
     gap: 10px;
+    overflow: hidden;
+    flex-shrink: 0;
+    min-height: 64px;
+}
+
+.sidebar-footer-info {
+    flex-grow: 1;
+    overflow: hidden;
+    transition: opacity 0.20s ease, width 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
 }
 
 .avatar {
-    width: 36px; height: 36px;
+    width: 34px; height: 34px;
     border-radius: 50%;
     background: rgba(255,255,255,0.18);
     display: flex;
@@ -177,12 +249,126 @@ html, body {
     font-weight: 600;
     color: #fff;
     line-height: 1.2;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .sidebar-footer .user-role {
     font-size: 10px;
     color: rgba(255,255,255,0.5);
     letter-spacing: 0.5px;
+}
+
+/* ────────────────────────────────────────────────────────
+   ESTADO COLAPSADO — Desktop
+   ──────────────────────────────────────────────────────── */
+.sidebar.collapsed {
+    width: var(--sidebar-collapsed-w);
+}
+
+/* Ocultar textos del brand */
+.sidebar.collapsed .brand-logo-area {
+    opacity: 0;
+    width: 0;
+    pointer-events: none;
+}
+
+/* Ocultar etiquetas de sección */
+.sidebar.collapsed .nav-label {
+    opacity: 0;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    pointer-events: none;
+}
+
+/* Centrar íconos del nav y ocultar texto */
+.sidebar.collapsed .nav-item {
+    justify-content: center;
+    padding: 10px 0;
+}
+
+/* En modo colapsado el texto del nav-item es el TextNode directo.
+   Lo envolvemos con un span.nav-text desde el HTML. */
+.sidebar.collapsed .nav-text {
+    opacity: 0;
+    width: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+/* Ocultar info del footer */
+.sidebar.collapsed .sidebar-footer-info {
+    opacity: 0;
+    width: 0;
+    pointer-events: none;
+}
+
+.sidebar.collapsed .sidebar-footer {
+    justify-content: center;
+    padding: 14px 8px;
+}
+
+/* Rotar ícono del toggle */
+.sidebar.collapsed .sidebar-toggle .material-icons-round {
+    transform: rotate(180deg);
+}
+
+/* Tooltip nativo para los nav-items cuando está colapsado */
+.sidebar.collapsed .nav-item {
+    overflow: visible;
+}
+
+/* ────────────────────────────────────────────────────────
+   OVERLAY Y BOTÓN FLOTANTE (Móvil)
+   ──────────────────────────────────────────────────────── */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 99;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    backdrop-filter: blur(2px);
+}
+
+.sidebar-overlay.visible {
+    display: block;
+    opacity: 1;
+}
+
+/* Botón flotante para abrir en móvil */
+.sidebar-open-btn {
+    display: none;
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 98;
+    width: 40px; height: 40px;
+    border-radius: var(--radius-md);
+    background: var(--gradient-cta);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(0, 50, 125, 0.35);
+    transition: opacity 0.20s ease, transform 0.20s ease;
+}
+
+.sidebar-open-btn.visible {
+    display: flex;
+}
+
+.sidebar-open-btn:hover {
+    opacity: 0.88;
+    transform: scale(1.05);
+}
+
+.sidebar-open-btn .material-icons-round {
+    font-size: 22px;
 }
 
 /* ─────────────── MAIN CONTENT ─────────────── */
@@ -192,6 +378,14 @@ html, body {
     overflow-y: auto;
     height: 100vh;
     background: var(--surface);
+    /* Transición sincronizada con el sidebar */
+    transition: margin-left 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Cuando el sidebar está colapsado en desktop */
+.sidebar.collapsed ~ .sidebar-open-btn,
+.sidebar.collapsed ~ .main-content {
+    margin-left: var(--sidebar-collapsed-w);
 }
 
 .page-header {
@@ -701,4 +895,51 @@ textarea.form-control-dn { resize: vertical; min-height: 80px; }
     .kpi-grid { grid-template-columns: repeat(2, 1fr); }
     .form-grid { grid-template-columns: repeat(2, 1fr); }
     .detail-layout { grid-template-columns: 1fr; }
+}
+
+/* ────────────────────────────────────────────────────────
+   RESPONSIVO — Tablet y Móvil (≤ 768px)
+   ──────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+    /* El sidebar se convierte en un drawer deslizante */
+    .sidebar {
+        transform: translateX(-100%);
+        width: var(--sidebar-w) !important; /* siempre ancho completo en móvil */
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25);
+    }
+
+    /* Cuando está expandido (no colapsado) se desliza hacia dentro */
+    .sidebar:not(.collapsed) {
+        transform: translateX(0);
+    }
+
+    /* El main siempre ocupa todo el ancho en móvil */
+    .main-content {
+        margin-left: 0 !important;
+        padding-top: 0;
+    }
+
+    /* Padding superior para que el contenido no quede bajo el botón flotante */
+    .page-header {
+        padding-top: 64px;
+    }
+
+    /* Ocultar textos del nav (mostrarlos, ya que el sidebar es full-width en móvil) */
+    .sidebar.collapsed .brand-logo-area { opacity: 1; width: auto; pointer-events: auto; }
+    .sidebar.collapsed .nav-label { opacity: 1; height: auto; margin: 8px 0 0; padding: 8px 8px 4px; pointer-events: auto; }
+    .sidebar.collapsed .nav-item { justify-content: flex-start; padding: 10px 12px; }
+    .sidebar.collapsed .nav-text { opacity: 1; width: auto; pointer-events: auto; }
+    .sidebar.collapsed .sidebar-footer-info { opacity: 1; width: auto; pointer-events: auto; }
+    .sidebar.collapsed .sidebar-footer { justify-content: flex-start; padding: 14px; }
+    .sidebar.collapsed .sidebar-toggle .material-icons-round { transform: none; }
+
+    /* KPIs en 1 columna en móvil pequeño */
+    .kpi-grid { grid-template-columns: 1fr 1fr; }
+    .page-body { padding: 16px 16px 32px; }
+    .page-header { padding-left: 16px; padding-right: 16px; }
+}
+
+@media (max-width: 480px) {
+    .kpi-grid { grid-template-columns: 1fr; }
+    .form-grid, .form-grid-2 { grid-template-columns: 1fr; }
 }

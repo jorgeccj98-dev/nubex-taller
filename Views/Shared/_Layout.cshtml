@@ -11,10 +11,18 @@
 <div class="app-wrapper">
 
     <!-- ══ SIDEBAR ══ -->
-    <nav class="sidebar">
+    <!-- Overlay móvil -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <nav class="sidebar" id="sidebar">
         <div class="sidebar-brand">
-            <div class="brand-name">DANIMEC</div>
-            <div class="brand-sub">Precision Workshop</div>
+            <div class="brand-logo-area">
+                <div class="brand-name">DANIMEC</div>
+                <div class="brand-sub">Servicio Mecanico Automotriz</div>
+            </div>
+            <button class="sidebar-toggle" id="sidebarToggle" title="Colapsar menú" aria-label="Toggle sidebar">
+                <span class="material-icons-round">menu_open</span>
+            </button>
         </div>
 
         <div class="sidebar-nav">
@@ -22,34 +30,34 @@
             <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")"
                asp-controller="Dashboard" asp-action="Index">
                 <span class="material-icons-round">dashboard</span>
-                Dashboard
+                <span class="nav-text">Dashboard</span>
             </a>
             <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "NotasServicio" && ViewContext.RouteData.Values["action"]?.ToString() == "Create" ? "active" : "")"
                asp-controller="NotasServicio" asp-action="Create">
-                <span class="material-icons-round">add_notes</span>
-                Nueva Nota
+                <span class="material-icons-round">add</span>
+                <span class="nav-text">Nueva Nota</span>
             </a>
             <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "NotasServicio" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
                asp-controller="NotasServicio" asp-action="Index">
                 <span class="material-icons-round">history</span>
-                Historial de Servicios
+                <span class="nav-text">Historial de Servicios</span>
             </a>
             <span class="nav-label" style="margin-top:16px">Maestros</span>
             <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Clientes" ? "active" : "")"
                asp-controller="Clientes" asp-action="Index">
                 <span class="material-icons-round">group</span>
-                Clientes
+                <span class="nav-text">Clientes</span>
             </a>
             <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Vehiculos" ? "active" : "")"
                asp-controller="Vehiculos" asp-action="Index">
                 <span class="material-icons-round">directions_car</span>
-                Vehículos
+                <span class="nav-text">Vehículos</span>
             </a>
             <span class="nav-label" style="margin-top:16px">Recursos</span>
             <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Inventario" ? "active" : "")"
                asp-controller="Inventario" asp-action="Index">
                 <span class="material-icons-round">handyman</span>
-                Inventario
+                <span class="nav-text">Inventario</span>
             </a>
         </div>
 
@@ -58,14 +66,14 @@
             {
                 var email = User.Identity.Name;
                 var initial = !string.IsNullOrEmpty(email) ? email[0].ToString().ToUpper() : "U";
-                
+
                 <div class="avatar" style="background-color: #3b82f6; color: white;">@initial</div>
-                <div style="flex-grow: 1; overflow: hidden;">
-                    <div class="user-name" style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;" title="@email">@email</div>
+                <div class="sidebar-footer-info">
+                    <div class="user-name" title="@email">@email</div>
                     <div class="user-role">Administrador</div>
                 </div>
                 <form asp-controller="Account" asp-action="Logout" method="post" style="margin: 0;">
-                    <button type="submit" style="background: none; border: none; color: #64748b; cursor: pointer; padding: 4px;" title="Cerrar sesión">
+                    <button type="submit" style="background: none; border: none; color: rgba(255,255,255,0.55); cursor: pointer; padding: 4px;" title="Cerrar sesión">
                         <span class="material-icons-round" style="font-size: 20px;">logout</span>
                     </button>
                 </form>
@@ -73,7 +81,7 @@
             else
             {
                 <div class="avatar">?</div>
-                <div>
+                <div class="sidebar-footer-info">
                     <div class="user-name">Invitado</div>
                     <div class="user-role">No autenticado</div>
                 </div>
@@ -82,6 +90,10 @@
     </nav>
 
     <!-- ══ MAIN ══ -->
+    <!-- Botón flotante para abrir sidebar en móvil -->
+    <button class="sidebar-open-btn" id="sidebarOpenBtn" title="Abrir menú" aria-label="Abrir menú">
+        <span class="material-icons-round">menu</span>
+    </button>
     <main class="main-content">
         @if (TempData["Success"] != null)
         {
@@ -98,5 +110,87 @@
 </div>
 
 @await RenderSectionAsync("Scripts", required: false)
+
+<script>
+(function () {
+    const sidebar     = document.getElementById('sidebar');
+    const toggle      = document.getElementById('sidebarToggle');
+    const openBtn     = document.getElementById('sidebarOpenBtn');
+    const overlay     = document.getElementById('sidebarOverlay');
+    const mainContent = document.querySelector('.main-content');
+    const MOBILE_BP   = 768;
+    const STORAGE_KEY = 'dn_sidebar_collapsed';
+
+    // Leer variables CSS
+    const rootStyle       = getComputedStyle(document.documentElement);
+    const sidebarW        = rootStyle.getPropertyValue('--sidebar-w').trim();        // '240px'
+    const sidebarCollapW  = rootStyle.getPropertyValue('--sidebar-collapsed-w').trim(); // '64px'
+
+    function isMobile() { return window.innerWidth <= MOBILE_BP; }
+
+    function setCollapsed(collapsed, save) {
+        if (collapsed) {
+            sidebar.classList.add('collapsed');
+            toggle.querySelector('.material-icons-round').textContent = 'menu';
+            toggle.setAttribute('title', 'Expandir menú');
+        } else {
+            sidebar.classList.remove('collapsed');
+            toggle.querySelector('.material-icons-round').textContent = 'menu_open';
+            toggle.setAttribute('title', 'Colapsar menú');
+        }
+
+        if (isMobile()) {
+            // Móvil: overlay + botón flotante; main siempre margin 0
+            overlay.classList.toggle('visible', !collapsed);
+            openBtn.classList.toggle('visible', collapsed);
+            mainContent.style.marginLeft = '0';
+        } else {
+            // Desktop: ajustar margin del contenido principal
+            overlay.classList.remove('visible');
+            openBtn.classList.remove('visible');
+            mainContent.style.marginLeft = collapsed ? sidebarCollapW : sidebarW;
+        }
+
+        if (save) sessionStorage.setItem(STORAGE_KEY, collapsed ? '1' : '0');
+    }
+
+    function initSidebar() {
+        if (isMobile()) {
+            setCollapsed(true, false);
+        } else {
+            const saved = sessionStorage.getItem(STORAGE_KEY);
+            setCollapsed(saved === '1', false);
+        }
+    }
+
+    toggle.addEventListener('click', function () {
+        setCollapsed(!sidebar.classList.contains('collapsed'), true);
+    });
+
+    openBtn.addEventListener('click', function () {
+        setCollapsed(false, true);
+    });
+
+    overlay.addEventListener('click', function () {
+        setCollapsed(true, true);
+    });
+
+    // Responsive: ajustar al cambiar tamaño de ventana
+    let resizeTimer;
+    window.addEventListener('resize', function () {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function () {
+            if (isMobile()) {
+                setCollapsed(true, false);
+            } else {
+                const saved = sessionStorage.getItem(STORAGE_KEY);
+                setCollapsed(saved === '1', false);
+            }
+        }, 150);
+    });
+
+    initSidebar();
+})();
+</script>
 </body>
 </html>
