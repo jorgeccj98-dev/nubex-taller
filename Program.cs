@@ -35,12 +35,15 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapStaticAssets();
 
-// Seed database on startup
-using (var scope = app.Services.CreateScope())
+// Seed database on startup (solo en desarrollo)
+if (app.Environment.IsDevelopment())
 {
-    var ctx = scope.ServiceProvider.GetRequiredService<DanimecDbContext>();
-    var userManager = scope.ServiceProvider.GetRequiredService<Microsoft.AspNetCore.Identity.UserManager<Microsoft.AspNetCore.Identity.IdentityUser>>();
-    await DbSeeder.SeedAsync(ctx, userManager);
+    using (var scope = app.Services.CreateScope())
+    {
+        var ctx = scope.ServiceProvider.GetRequiredService<DanimecDbContext>();
+        var userManager = scope.ServiceProvider.GetRequiredService<Microsoft.AspNetCore.Identity.UserManager<Microsoft.AspNetCore.Identity.IdentityUser>>();
+        await DbSeeder.SeedAsync(ctx, userManager);
+    }
 }
 
 app.MapControllerRoute(
