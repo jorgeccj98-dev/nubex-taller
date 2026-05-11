@@ -272,123 +272,157 @@
 
 <!-- ══ INVOICE TEMPLATE FOR PDF ══ -->
 <div style="position: absolute; left: -9999px; top: 0;">
-    <div id="invoiceTemplate" style="width: 800px; padding: 40px; font-family: 'Inter', system-ui, sans-serif; background: #ffffff; color: #1f2937;">
+    <div id="invoiceTemplate" style="width: 794px; padding: 30px; font-family: 'Inter', system-ui, sans-serif; background: #ffffff; color: #334155; box-sizing: border-box;">
+        
         <!-- Header -->
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #e5e7eb; padding-bottom: 24px; margin-bottom: 32px;">
-            <div>
-                <h1 style="margin: 0; color: #111827; font-size: 28px; font-weight: 800; letter-spacing: -0.5px;">TALLER MECÁNICO</h1>
-                <p style="margin: 4px 0 0 0; color: #4b5563; font-size: 14px;">Av. Principal 123, Zona Sur</p>
-                <p style="margin: 4px 0 0 0; color: #4b5563; font-size: 14px;">Tel: +591 123 45678</p>
-                <p style="margin: 4px 0 0 0; color: #4b5563; font-size: 14px;">Email: contacto@tallermecanico.com</p>
+        <div style="background-color: #1e3a8a; color: #ffffff; padding: 20px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div style="display: flex; gap: 16px; align-items: center;">
+                <img src="/img/logo.png" alt="Logo PDF" style="height: 50px; max-width: 150px; object-fit: contain;" />
+                <div>
+                    <h1 style="margin: 0; color: #ffffff; font-size: 20px; font-weight: 800; text-transform: uppercase;"></h1>
+                    <p style="margin: 4px 0 0 0; font-size: 11px; color: #e2e8f0;">Av. Banzer 6to anillo, barrio los sauces, calle A | Cel. 78585098</p>
+                </div>
             </div>
             <div style="text-align: right;">
-                <h2 style="margin: 0; color: #3b82f6; font-size: 24px; font-weight: 700;">NOTA DE SERVICIO</h2>
-                <p style="margin: 8px 0 0 0; font-size: 16px; font-weight: 600; color: #111827;">Nº @Model.Numero</p>
-                <p style="margin: 4px 0 0 0; color: #6b7280; font-size: 14px;">Fecha: @Model.FechaEntrada.ToString("dd MMM yyyy")</p>
-                <div style="display: inline-block; margin-top: 12px; padding: 4px 12px; background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; border-radius: 9999px; font-size: 12px; font-weight: 600;">FINALIZADO</div>
+                <h2 style="margin: 0; font-size: 16px; font-weight: 700; color: #ffffff; text-transform: uppercase;">NOTA DE SERVICIO</h2>
+                <div style="font-size: 14px; font-weight: 800; color: #fbbf24; margin-top: 4px;">Nº @Model.Numero</div>
+                <p style="margin: 4px 0 0 0; font-size: 11px; color: #e2e8f0;">Fecha: @Model.FechaEntrada.ToString("dd/MM/yyyy") | Estado: <strong>FINALIZADO</strong></p>
             </div>
         </div>
 
         <!-- Client & Vehicle Details -->
-        <div style="display: flex; justify-content: space-between; margin-bottom: 32px; gap: 24px;">
-            <div style="flex: 1; background: #f9fafb; padding: 20px; border-radius: 8px; border: 1px solid #f3f4f6;">
-                <h3 style="margin: 0 0 12px 0; color: #111827; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700;">Datos del Cliente</h3>
-                <p style="margin: 0 0 8px 0; font-size: 14px; color: #374151;"><strong>Nombre:</strong> @Model.Cliente?.NombreCompleto</p>
-                <p style="margin: 0 0 8px 0; font-size: 14px; color: #374151;"><strong>Teléfono:</strong> @(Model.Cliente?.Telefono ?? "—")</p>
-                <p style="margin: 0; font-size: 14px; color: #374151;"><strong>Email:</strong> @(Model.Cliente?.Email ?? "—")</p>
+        <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+            <div style="flex: 1; border: 1px solid #cbd5e1; padding: 10px; border-radius: 4px;">
+                <h3 style="margin: 0 0 8px 0; color: #1e3a8a; font-size: 11px; text-transform: uppercase; font-weight: 700; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">Datos del Cliente</h3>
+                <div style="display: grid; grid-template-columns: 60px 1fr; gap: 4px; font-size: 11px;">
+                    <span style="color: #64748b; font-weight: 600;">Nombre:</span> <span style="color: #0f172a; font-weight: 600;">@Model.Cliente?.NombreCompleto</span>
+                    <span style="color: #64748b; font-weight: 600;">Tel:</span> <span style="color: #0f172a;">@(Model.Cliente?.Telefono ?? "—")</span>
+                    <span style="color: #64748b; font-weight: 600;">Email:</span> <span style="color: #0f172a;">@(Model.Cliente?.Email ?? "—")</span>
+                </div>
             </div>
-            <div style="flex: 1; background: #f9fafb; padding: 20px; border-radius: 8px; border: 1px solid #f3f4f6;">
-                <h3 style="margin: 0 0 12px 0; color: #111827; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700;">Datos del Vehículo</h3>
-                <p style="margin: 0 0 8px 0; font-size: 14px; color: #374151;"><strong>Vehículo:</strong> @Model.Vehiculo?.Marca @Model.Vehiculo?.Modelo @Model.Vehiculo?.Anio</p>
-                <p style="margin: 0 0 8px 0; font-size: 14px; color: #374151;"><strong>Placa:</strong> <span style="font-weight: 600;">@Model.Vehiculo?.Placa</span></p>
-                <p style="margin: 0; font-size: 14px; color: #374151;"><strong>Kilometraje:</strong> @(Model.Vehiculo?.KmActual?.ToString("N0") ?? "—") km</p>
+            <div style="flex: 1; border: 1px solid #cbd5e1; padding: 10px; border-radius: 4px;">
+                <h3 style="margin: 0 0 8px 0; color: #1e3a8a; font-size: 11px; text-transform: uppercase; font-weight: 700; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">Datos del Vehículo</h3>
+                <div style="display: grid; grid-template-columns: 60px 1fr; gap: 4px; font-size: 11px;">
+                    <span style="color: #64748b; font-weight: 600;">Vehículo:</span> <span style="color: #0f172a;">@Model.Vehiculo?.Marca @Model.Vehiculo?.Modelo @Model.Vehiculo?.Anio</span>
+                    <span style="color: #64748b; font-weight: 600;">Placa:</span> <span style="color: #0f172a; font-weight: 700;">@Model.Vehiculo?.Placa</span>
+                    <span style="color: #64748b; font-weight: 600;">KM:</span> <span style="color: #0f172a;">@(Model.Vehiculo?.KmActual?.ToString("N0") ?? "—") km</span>
+                </div>
             </div>
         </div>
 
-        <!-- Services Table -->
-        <h3 style="margin: 0 0 16px 0; color: #111827; font-size: 16px; font-weight: 700;">Detalle de Servicios</h3>
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 32px;">
-            <thead>
-                <tr style="background-color: #f3f4f6;">
-                    <th style="padding: 12px 16px; text-align: left; border-bottom: 2px solid #e5e7eb; font-size: 13px; font-weight: 600; color: #4b5563; text-transform: uppercase;">Descripción</th>
-                    <th style="padding: 12px 16px; text-align: right; border-bottom: 2px solid #e5e7eb; font-size: 13px; font-weight: 600; color: #4b5563; text-transform: uppercase;">Cant.</th>
-                    <th style="padding: 12px 16px; text-align: right; border-bottom: 2px solid #e5e7eb; font-size: 13px; font-weight: 600; color: #4b5563; text-transform: uppercase;">Precio Unit.</th>
-                    <th style="padding: 12px 16px; text-align: right; border-bottom: 2px solid #e5e7eb; font-size: 13px; font-weight: 600; color: #4b5563; text-transform: uppercase;">Subtotal</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var t in Model.TrabajosRealizados)
-                {
-                    <tr style="border-bottom: 1px solid #f3f4f6;">
-                        <td style="padding: 12px 16px; font-size: 14px; color: #1f2937;">@t.Descripcion <span style="font-size: 12px; color: #6b7280;">(Mano de Obra)</span></td>
-                        <td style="padding: 12px 16px; text-align: right; font-size: 14px; color: #1f2937;">@t.Cantidad</td>
-                        <td style="padding: 12px 16px; text-align: right; font-size: 14px; color: #1f2937;">Bs @t.PrecioUnitario.ToString("N2")</td>
-                        <td style="padding: 12px 16px; text-align: right; font-size: 14px; font-weight: 500; color: #111827;">Bs @((t.PrecioUnitario * t.Cantidad).ToString("N2"))</td>
+        <!-- 1. Trabajos Realizados -->
+        <div style="margin-bottom: 16px;">
+            <h3 style="margin: 0 0 6px 0; color: #1e3a8a; font-size: 12px; font-weight: 700; text-transform: uppercase;">1. Trabajos Realizados</h3>
+            <table style="width: 100%; border-collapse: collapse; font-size: 11px; border: 1px solid #cbd5e1;">
+                <thead>
+                    <tr style="background-color: #1e3a8a; color: #ffffff;">
+                        <th style="padding: 6px 10px; text-align: left; font-weight: 600; border: 1px solid #1e3a8a;">Descripción</th>
+                        <th style="padding: 6px 10px; text-align: center; font-weight: 600; border: 1px solid #1e3a8a; width: 60px;">Cant.</th>
+                        <th style="padding: 6px 10px; text-align: right; font-weight: 600; border: 1px solid #1e3a8a; width: 80px;">Precio</th>
+                        <th style="padding: 6px 10px; text-align: right; font-weight: 600; border: 1px solid #1e3a8a; width: 90px;">Subtotal</th>
                     </tr>
-                }
-                @foreach (var r in Model.RepuestosServicios)
-                {
-                    <tr style="border-bottom: 1px solid #f3f4f6;">
-                        <td style="padding: 12px 16px; font-size: 14px; color: #1f2937;">@r.Descripcion <span style="font-size: 12px; color: #6b7280;">(Repuesto)</span></td>
-                        <td style="padding: 12px 16px; text-align: right; font-size: 14px; color: #1f2937;">@r.Cantidad</td>
-                        <td style="padding: 12px 16px; text-align: right; font-size: 14px; color: #1f2937;">Bs @r.PrecioUnitario.ToString("N2")</td>
-                        <td style="padding: 12px 16px; text-align: right; font-size: 14px; font-weight: 500; color: #111827;">Bs @((r.PrecioUnitario * r.Cantidad).ToString("N2"))</td>
+                </thead>
+                <tbody>
+                    @foreach (var t in Model.TrabajosRealizados)
+                    {
+                        <tr style="border-bottom: 1px solid #e2e8f0;">
+                            <td style="padding: 6px 10px; color: #1e293b; border-right: 1px solid #e2e8f0;">@t.Descripcion</td>
+                            <td style="padding: 6px 10px; text-align: center; color: #475569; border-right: 1px solid #e2e8f0;">@t.Cantidad</td>
+                            <td style="padding: 6px 10px; text-align: right; color: #475569; border-right: 1px solid #e2e8f0;">Bs @t.PrecioUnitario.ToString("N2")</td>
+                            <td style="padding: 6px 10px; text-align: right; font-weight: 600; color: #0f172a;">Bs @((t.PrecioUnitario * t.Cantidad).ToString("N2"))</td>
+                        </tr>
+                    }
+                    @if (!Model.TrabajosRealizados.Any())
+                    {
+                        <tr><td colspan="4" style="padding: 8px; text-align: center; color: #94a3b8; font-style: italic;">Sin trabajos registrados.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 2. Repuestos y Materiales -->
+        <div style="margin-bottom: 16px;">
+            <h3 style="margin: 0 0 6px 0; color: #1e3a8a; font-size: 12px; font-weight: 700; text-transform: uppercase;">2. Repuestos y Materiales</h3>
+            <table style="width: 100%; border-collapse: collapse; font-size: 11px; border: 1px solid #cbd5e1;">
+                <thead>
+                    <tr style="background-color: #1e3a8a; color: #ffffff;">
+                        <th style="padding: 6px 10px; text-align: left; font-weight: 600; border: 1px solid #1e3a8a;">Repuesto / Material</th>
+                        <th style="padding: 6px 10px; text-align: center; font-weight: 600; border: 1px solid #1e3a8a; width: 60px;">Cant.</th>
+                        <th style="padding: 6px 10px; text-align: right; font-weight: 600; border: 1px solid #1e3a8a; width: 80px;">Precio Unit.</th>
+                        <th style="padding: 6px 10px; text-align: right; font-weight: 600; border: 1px solid #1e3a8a; width: 90px;">Subtotal</th>
                     </tr>
-                }
-                @foreach (var e in Model.TrabajosExternos)
-                {
-                    <tr style="border-bottom: 1px solid #f3f4f6;">
-                        <td style="padding: 12px 16px; font-size: 14px; color: #1f2937;">@e.Descripcion <span style="font-size: 12px; color: #6b7280;">(Servicio Ext.)</span></td>
-                        <td style="padding: 12px 16px; text-align: right; font-size: 14px; color: #1f2937;">1</td>
-                        <td style="padding: 12px 16px; text-align: right; font-size: 14px; color: #1f2937;">Bs @e.Monto.ToString("N2")</td>
-                        <td style="padding: 12px 16px; text-align: right; font-size: 14px; font-weight: 500; color: #111827;">Bs @e.Monto.ToString("N2")</td>
+                </thead>
+                <tbody>
+                    @foreach (var r in Model.RepuestosServicios)
+                    {
+                        <tr style="border-bottom: 1px solid #e2e8f0;">
+                            <td style="padding: 6px 10px; color: #1e293b; border-right: 1px solid #e2e8f0;">@r.Descripcion</td>
+                            <td style="padding: 6px 10px; text-align: center; color: #475569; border-right: 1px solid #e2e8f0;">@r.Cantidad</td>
+                            <td style="padding: 6px 10px; text-align: right; color: #475569; border-right: 1px solid #e2e8f0;">Bs @r.PrecioUnitario.ToString("N2")</td>
+                            <td style="padding: 6px 10px; text-align: right; font-weight: 600; color: #0f172a;">Bs @((r.PrecioUnitario * r.Cantidad).ToString("N2"))</td>
+                        </tr>
+                    }
+                    @if (!Model.RepuestosServicios.Any())
+                    {
+                        <tr><td colspan="4" style="padding: 8px; text-align: center; color: #94a3b8; font-style: italic;">Sin repuestos registrados.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 3. Trabajos Externos -->
+        <div style="margin-bottom: 20px;">
+            <h3 style="margin: 0 0 6px 0; color: #1e3a8a; font-size: 12px; font-weight: 700; text-transform: uppercase;">3. Trabajos Externos</h3>
+            <table style="width: 100%; border-collapse: collapse; font-size: 11px; border: 1px solid #cbd5e1;">
+                <thead>
+                    <tr style="background-color: #1e3a8a; color: #ffffff;">
+                        <th style="padding: 6px 10px; text-align: left; font-weight: 600; border: 1px solid #1e3a8a;">Descripción</th>
+                        <th style="padding: 6px 10px; text-align: left; font-weight: 600; border: 1px solid #1e3a8a;">Proveedor</th>
+                        <th style="padding: 6px 10px; text-align: right; font-weight: 600; border: 1px solid #1e3a8a; width: 80px;">Costo</th>
+                        <th style="padding: 6px 10px; text-align: right; font-weight: 600; border: 1px solid #1e3a8a; width: 90px;">Subtotal</th>
                     </tr>
-                }
-                @if (!Model.TrabajosRealizados.Any() && !Model.RepuestosServicios.Any() && !Model.TrabajosExternos.Any())
-                {
-                    <tr>
-                        <td colspan="4" style="padding: 24px 16px; text-align: center; font-size: 14px; color: #6b7280; font-style: italic;">No se registraron servicios ni repuestos.</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var e in Model.TrabajosExternos)
+                    {
+                        <tr style="border-bottom: 1px solid #e2e8f0;">
+                            <td style="padding: 6px 10px; color: #1e293b; border-right: 1px solid #e2e8f0;">@e.Descripcion</td>
+                            <td style="padding: 6px 10px; color: #475569; border-right: 1px solid #e2e8f0;">@e.Proveedor</td>
+                            <td style="padding: 6px 10px; text-align: right; color: #475569; border-right: 1px solid #e2e8f0;">Bs @e.Monto.ToString("N2")</td>
+                            <td style="padding: 6px 10px; text-align: right; font-weight: 600; color: #0f172a;">Bs @e.Monto.ToString("N2")</td>
+                        </tr>
+                    }
+                    @if (!Model.TrabajosExternos.Any())
+                    {
+                        <tr><td colspan="4" style="padding: 8px; text-align: center; color: #94a3b8; font-style: italic;">Sin trabajos externos registrados.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
 
         <!-- Summary Totals -->
-        <div style="display: flex; justify-content: flex-end; margin-bottom: 48px;">
-            <div style="width: 320px; background: #f9fafb; padding: 20px; border-radius: 8px; border: 1px solid #e5e7eb;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; color: #4b5563;">
-                    <span>Subtotal Servicios:</span>
-                    <span style="font-weight: 500; color: #111827;">Bs @Model.SubTotal.ToString("N2")</span>
+        <div style="display: flex; justify-content: flex-end;">
+            <div style="width: 280px; border: 1px solid #cbd5e1; border-radius: 4px; overflow: hidden;">
+                <div style="display: flex; justify-content: space-between; padding: 6px 12px; font-size: 11px; color: #475569; background: #ffffff; border-bottom: 1px solid #e2e8f0;">
+                    <span>Total Trabajos:</span>
+                    <span style="font-weight: 600; color: #0f172a;">Bs @Model.TrabajosRealizados.Sum(t => t.PrecioUnitario * t.Cantidad).ToString("N2")</span>
                 </div>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 16px; font-size: 14px; color: #4b5563;">
-                    <span>Descuentos:</span>
-                    <span style="font-weight: 500; color: #111827;">Bs 0.00</span>
+                <div style="display: flex; justify-content: space-between; padding: 6px 12px; font-size: 11px; color: #475569; background: #ffffff; border-bottom: 1px solid #e2e8f0;">
+                    <span>Total Repuestos:</span>
+                    <span style="font-weight: 600; color: #0f172a;">Bs @Model.RepuestosServicios.Sum(r => r.PrecioUnitario * r.Cantidad).ToString("N2")</span>
                 </div>
-                <div style="display: flex; justify-content: space-between; padding-top: 16px; border-top: 2px solid #e5e7eb; font-size: 18px; font-weight: 700; color: #111827;">
-                    <span>Total a Pagar:</span>
-                    <span>Bs @Model.Total.ToString("N2")</span>
+                <div style="display: flex; justify-content: space-between; padding: 6px 12px; font-size: 11px; color: #475569; background: #f8fafc; border-bottom: 1px solid #cbd5e1;">
+                    <span>Total Externos:</span>
+                    <span style="font-weight: 600; color: #0f172a;">Bs @Model.TrabajosExternos.Sum(e => e.Monto).ToString("N2")</span>
+                </div>
+                <!-- Highlighted Total Box -->
+                <div style="background-color: #1e3a8a; color: #ffffff; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 12px; font-weight: 700; text-transform: uppercase;">TOTAL FINAL:</span>
+                    <span style="font-size: 16px; font-weight: 800;">Bs @Model.Total.ToString("N2")</span>
                 </div>
             </div>
         </div>
 
-        <!-- Footer & Signatures -->
-        <div style="margin-top: auto;">
-            <div style="display: flex; justify-content: space-around; margin-bottom: 32px;">
-                <div style="text-align: center; width: 240px;">
-                    <div style="border-top: 1px solid #9ca3af; margin-bottom: 8px;"></div>
-                    <p style="margin: 0; font-size: 14px; color: #4b5563; font-weight: 500;">Firma Cliente</p>
-                    <p style="margin: 4px 0 0 0; font-size: 12px; color: #6b7280;">Acepto conformidad del servicio</p>
-                </div>
-                <div style="text-align: center; width: 240px;">
-                    <div style="border-top: 1px solid #9ca3af; margin-bottom: 8px;"></div>
-                    <p style="margin: 0; font-size: 14px; color: #4b5563; font-weight: 500;">Sello / Firma Taller</p>
-                    <p style="margin: 4px 0 0 0; font-size: 12px; color: #6b7280;">Entregado por</p>
-                </div>
-            </div>
-            <div style="text-align: center; padding-top: 24px; border-top: 1px solid #f3f4f6;">
-                <p style="margin: 0; font-size: 13px; color: #6b7280; font-style: italic;">¡Gracias por confiar en nuestros servicios! Su vehículo está en las mejores manos.</p>
-            </div>
-        </div>
     </div>
 </div>
 
