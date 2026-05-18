@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = $"Nota {Model.Numero}";
     var estados = Enum.GetValues<EstadoServicio>();
+    bool puedeEditar = Model.Estado == EstadoServicio.EnProgreso || Model.Estado == EstadoServicio.Cotizacion;
 }
 
 <div class="page-header">
@@ -104,9 +105,12 @@
         <div class="data-section mb-16">
             <div class="section-header">
                 <div class="section-title">Trabajos Realizados</div>
-                <button class="btn-ghost-dn" style="font-size:12px;padding:6px 12px" onclick="toggleModal('modalTrabajo')">
-                    <span class="material-icons-round" style="font-size:16px">add</span> Agregar
-                </button>
+                @if (puedeEditar)
+                {
+                    <button class="btn-ghost-dn" style="font-size:12px;padding:6px 12px" onclick="toggleModal('modalTrabajo')">
+                        <span class="material-icons-round" style="font-size:16px">add</span> Agregar
+                    </button>
+                }
             </div>
             <table class="dn-table">
                 <thead>
@@ -116,6 +120,7 @@
                         <th class="right">Precio Unit.</th>
                         <th class="right">Cant.</th>
                         <th class="right">Total</th>
+                        @if (puedeEditar) { <th style="width:80px"></th> }
                     </tr>
                 </thead>
                 <tbody>
@@ -127,11 +132,28 @@
                             <td class="right">Bs @t.PrecioUnitario.ToString("N2")</td>
                             <td class="right">@t.Cantidad</td>
                             <td class="right fw-semibold">Bs @((t.PrecioUnitario * t.Cantidad).ToString("N2"))</td>
+                            @if (puedeEditar)
+                            {
+                                <td style="text-align:center;white-space:nowrap">
+                                    <button type="button" class="btn-icon-dn" title="Editar"
+                                        onclick="openEditTrabajo(@t.Id, '@Html.Raw(t.Descripcion.Replace("'","\\'"))', '@Html.Raw((t.Tecnico??string.Empty).Replace("'","\\'"))', @t.PrecioUnitario.ToString(System.Globalization.CultureInfo.InvariantCulture), @t.Cantidad)">
+                                        <span class="material-icons-round" style="font-size:16px;color:var(--primary-container)">edit</span>
+                                    </button>
+                                    <form asp-action="DeleteTrabajo" method="post" style="display:inline" onsubmit="return confirm('¿Eliminar este trabajo?')">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@t.Id" />
+                                        <input type="hidden" name="notaId" value="@Model.Id" />
+                                        <button type="submit" class="btn-icon-dn" title="Eliminar">
+                                            <span class="material-icons-round" style="font-size:16px;color:#e53935">delete</span>
+                                        </button>
+                                    </form>
+                                </td>
+                            }
                         </tr>
                     }
                     @if (!Model.TrabajosRealizados.Any())
                     {
-                        <tr><td colspan="5" style="text-align:center;padding:24px;color:var(--on-surface-variant)">Sin trabajos registrados.</td></tr>
+                        <tr><td colspan="@(puedeEditar ? 6 : 5)" style="text-align:center;padding:24px;color:var(--on-surface-variant)">Sin trabajos registrados.</td></tr>
                     }
                 </tbody>
             </table>
@@ -141,9 +163,12 @@
         <div class="data-section mb-16">
             <div class="section-header">
                 <div class="section-title">Repuestos y Materiales</div>
-                <button class="btn-ghost-dn" style="font-size:12px;padding:6px 12px" onclick="toggleModal('modalRepuesto')">
-                    <span class="material-icons-round" style="font-size:16px">add</span> Agregar
-                </button>
+                @if (puedeEditar)
+                {
+                    <button class="btn-ghost-dn" style="font-size:12px;padding:6px 12px" onclick="toggleModal('modalRepuesto')">
+                        <span class="material-icons-round" style="font-size:16px">add</span> Agregar
+                    </button>
+                }
             </div>
             <table class="dn-table">
                 <thead>
@@ -152,6 +177,7 @@
                         <th class="right">Precio Unit.</th>
                         <th class="right">Cant.</th>
                         <th class="right">Total</th>
+                        @if (puedeEditar) { <th style="width:80px"></th> }
                     </tr>
                 </thead>
                 <tbody>
@@ -168,11 +194,28 @@
                             <td class="right">Bs @r.PrecioUnitario.ToString("N2")</td>
                             <td class="right">@r.Cantidad</td>
                             <td class="right fw-semibold">Bs @((r.PrecioUnitario * r.Cantidad).ToString("N2"))</td>
+                            @if (puedeEditar)
+                            {
+                                <td style="text-align:center;white-space:nowrap">
+                                    <button type="button" class="btn-icon-dn" title="Editar"
+                                        onclick="openEditRepuesto(@r.Id, '@Html.Raw(r.Descripcion.Replace("'","\\'"))', @r.PrecioUnitario.ToString(System.Globalization.CultureInfo.InvariantCulture), @r.Cantidad)">
+                                        <span class="material-icons-round" style="font-size:16px;color:var(--primary-container)">edit</span>
+                                    </button>
+                                    <form asp-action="DeleteRepuesto" method="post" style="display:inline" onsubmit="return confirm('¿Eliminar este repuesto?')">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@r.Id" />
+                                        <input type="hidden" name="notaId" value="@Model.Id" />
+                                        <button type="submit" class="btn-icon-dn" title="Eliminar">
+                                            <span class="material-icons-round" style="font-size:16px;color:#e53935">delete</span>
+                                        </button>
+                                    </form>
+                                </td>
+                            }
                         </tr>
                     }
                     @if (!Model.RepuestosServicios.Any())
                     {
-                        <tr><td colspan="4" style="text-align:center;padding:24px;color:var(--on-surface-variant)">Sin repuestos registrados.</td></tr>
+                        <tr><td colspan="@(puedeEditar ? 5 : 4)" style="text-align:center;padding:24px;color:var(--on-surface-variant)">Sin repuestos registrados.</td></tr>
                     }
                 </tbody>
             </table>
@@ -182,9 +225,12 @@
         <div class="data-section">
             <div class="section-header">
                 <div class="section-title">Trabajos Externos</div>
-                <button class="btn-ghost-dn" style="font-size:12px;padding:6px 12px" onclick="toggleModal('modalExterno')">
-                    <span class="material-icons-round" style="font-size:16px">add</span> Agregar
-                </button>
+                @if (puedeEditar)
+                {
+                    <button class="btn-ghost-dn" style="font-size:12px;padding:6px 12px" onclick="toggleModal('modalExterno')">
+                        <span class="material-icons-round" style="font-size:16px">add</span> Agregar
+                    </button>
+                }
             </div>
             <table class="dn-table">
                 <thead>
@@ -193,6 +239,7 @@
                         <th>Descripción</th>
                         <th>Factura</th>
                         <th class="right">Monto</th>
+                        @if (puedeEditar) { <th style="width:80px"></th> }
                     </tr>
                 </thead>
                 <tbody>
@@ -207,11 +254,28 @@
                                 </span>
                             </td>
                             <td class="right fw-semibold">Bs @e.Monto.ToString("N2")</td>
+                            @if (puedeEditar)
+                            {
+                                <td style="text-align:center;white-space:nowrap">
+                                    <button type="button" class="btn-icon-dn" title="Editar"
+                                        onclick="openEditExterno(@e.Id, '@Html.Raw(e.Proveedor.Replace("'","\\'"))', '@Html.Raw(e.Descripcion.Replace("'","\\'"))', @e.Monto.ToString(System.Globalization.CultureInfo.InvariantCulture), @e.FacturaAdjunta.ToString().ToLower())">
+                                        <span class="material-icons-round" style="font-size:16px;color:var(--primary-container)">edit</span>
+                                    </button>
+                                    <form asp-action="DeleteExterno" method="post" style="display:inline" onsubmit="return confirm('¿Eliminar este trabajo externo?')">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@e.Id" />
+                                        <input type="hidden" name="notaId" value="@Model.Id" />
+                                        <button type="submit" class="btn-icon-dn" title="Eliminar">
+                                            <span class="material-icons-round" style="font-size:16px;color:#e53935">delete</span>
+                                        </button>
+                                    </form>
+                                </td>
+                            }
                         </tr>
                     }
                     @if (!Model.TrabajosExternos.Any())
                     {
-                        <tr><td colspan="4" style="text-align:center;padding:24px;color:var(--on-surface-variant)">Sin trabajos externos.</td></tr>
+                        <tr><td colspan="@(puedeEditar ? 5 : 4)" style="text-align:center;padding:24px;color:var(--on-surface-variant)">Sin trabajos externos.</td></tr>
                     }
                 </tbody>
             </table>
@@ -542,6 +606,104 @@
     </div>
 </div>
 
+<!-- MODAL: Editar Trabajo Realizado -->
+<div id="modalEditTrabajo" style="display:none;position:fixed;inset:0;background:rgba(25,27,34,.5);z-index:200;align-items:center;justify-content:center">
+    <div style="background:#fff;border-radius:16px;padding:28px;width:480px;max-width:95vw;box-shadow:0 24px 48px rgba(0,0,0,.2)">
+        <div class="form-section-title">Editar Trabajo Realizado</div>
+        <form asp-action="EditTrabajo" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" id="editTrabId" />
+            <input type="hidden" name="notaId" value="@Model.Id" />
+            <div class="form-group mb-16">
+                <label class="form-label">Descripción</label>
+                <input name="descripcion" id="editTrabDesc" required class="form-control-dn" />
+            </div>
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label class="form-label">Técnico</label>
+                    <input name="tecnico" id="editTrabTec" class="form-control-dn" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Precio Unitario</label>
+                    <input name="precioUnitario" id="editTrabPrecio" type="number" step="0.01" required class="form-control-dn" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Cantidad</label>
+                    <input name="cantidad" id="editTrabCant" type="number" required class="form-control-dn" min="1" />
+                </div>
+            </div>
+            <div class="d-flex gap-8" style="margin-top:20px">
+                <button type="submit" class="btn-primary-dn">Guardar Cambios</button>
+                <button type="button" class="btn-ghost-dn" onclick="toggleModal('modalEditTrabajo')">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL: Editar Repuesto -->
+<div id="modalEditRepuesto" style="display:none;position:fixed;inset:0;background:rgba(25,27,34,.5);z-index:200;align-items:center;justify-content:center">
+    <div style="background:#fff;border-radius:16px;padding:28px;width:480px;max-width:95vw;box-shadow:0 24px 48px rgba(0,0,0,.2)">
+        <div class="form-section-title">Editar Repuesto / Material</div>
+        <form asp-action="EditRepuesto" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" id="editRepId" />
+            <input type="hidden" name="notaId" value="@Model.Id" />
+            <div class="form-group mb-16">
+                <label class="form-label">Descripción</label>
+                <input name="descripcion" id="editRepDesc" required class="form-control-dn" />
+            </div>
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label class="form-label">Precio Unitario</label>
+                    <input name="precioUnitario" id="editRepPrecio" type="number" step="0.01" required class="form-control-dn" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Cantidad</label>
+                    <input name="cantidad" id="editRepCant" type="number" required class="form-control-dn" min="1" />
+                </div>
+            </div>
+            <div class="d-flex gap-8" style="margin-top:20px">
+                <button type="submit" class="btn-primary-dn">Guardar Cambios</button>
+                <button type="button" class="btn-ghost-dn" onclick="toggleModal('modalEditRepuesto')">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL: Editar Trabajo Externo -->
+<div id="modalEditExterno" style="display:none;position:fixed;inset:0;background:rgba(25,27,34,.5);z-index:200;align-items:center;justify-content:center">
+    <div style="background:#fff;border-radius:16px;padding:28px;width:480px;max-width:95vw;box-shadow:0 24px 48px rgba(0,0,0,.2)">
+        <div class="form-section-title">Editar Trabajo Externo</div>
+        <form asp-action="EditExterno" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" id="editExtId" />
+            <input type="hidden" name="notaId" value="@Model.Id" />
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label class="form-label">Proveedor</label>
+                    <input name="proveedor" id="editExtProv" required class="form-control-dn" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Monto</label>
+                    <input name="monto" id="editExtMonto" type="number" step="0.01" required class="form-control-dn" />
+                </div>
+                <div class="form-group form-grid-full">
+                    <label class="form-label">Descripción</label>
+                    <input name="descripcion" id="editExtDesc" required class="form-control-dn" />
+                </div>
+                <div class="form-group" style="flex-direction:row;align-items:center;gap:10px;padding-top:12px">
+                    <input type="checkbox" name="facturaAdjunta" id="editExtFact" value="true" style="width:16px;height:16px;accent-color:var(--primary-container)" />
+                    <label for="editExtFact" class="form-label" style="text-transform:none;font-size:13px;cursor:pointer">Factura Adjunta</label>
+                </div>
+            </div>
+            <div class="d-flex gap-8" style="margin-top:20px">
+                <button type="submit" class="btn-primary-dn">Guardar Cambios</button>
+                <button type="button" class="btn-ghost-dn" onclick="toggleModal('modalEditExterno')">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 @section Scripts {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
@@ -575,6 +737,32 @@ function exportarPDF() {
 function toggleModal(id) {
     const m = document.getElementById(id);
     m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
+}
+
+function openEditTrabajo(id, descripcion, tecnico, precio, cantidad) {
+    document.getElementById('editTrabId').value = id;
+    document.getElementById('editTrabDesc').value = descripcion;
+    document.getElementById('editTrabTec').value = tecnico;
+    document.getElementById('editTrabPrecio').value = precio;
+    document.getElementById('editTrabCant').value = cantidad;
+    toggleModal('modalEditTrabajo');
+}
+
+function openEditRepuesto(id, descripcion, precio, cantidad) {
+    document.getElementById('editRepId').value = id;
+    document.getElementById('editRepDesc').value = descripcion;
+    document.getElementById('editRepPrecio').value = precio;
+    document.getElementById('editRepCant').value = cantidad;
+    toggleModal('modalEditRepuesto');
+}
+
+function openEditExterno(id, proveedor, descripcion, monto, facturaAdjunta) {
+    document.getElementById('editExtId').value = id;
+    document.getElementById('editExtProv').value = proveedor;
+    document.getElementById('editExtDesc').value = descripcion;
+    document.getElementById('editExtMonto').value = monto;
+    document.getElementById('editExtFact').checked = facturaAdjunta === true || facturaAdjunta === 'true';
+    toggleModal('modalEditExterno');
 }
 
 // Inventory search

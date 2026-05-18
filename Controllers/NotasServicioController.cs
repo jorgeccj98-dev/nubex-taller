@@ -154,6 +154,149 @@ public class NotasServicioController : Controller
         return RedirectToAction(nameof(Details), new { id = notaId });
     }
 
+    // POST: Delete Trabajo Realizado
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteTrabajo(int id, int notaId)
+    {
+        var nota = await _ctx.NotasServicio.FindAsync(notaId);
+        if (nota == null) return NotFound();
+        if (nota.Estado == EstadoServicio.Finalizado || nota.Estado == EstadoServicio.Vencido)
+        {
+            TempData["Error"] = "No se puede modificar una nota finalizada.";
+            return RedirectToAction(nameof(Details), new { id = notaId });
+        }
+
+        var trabajo = await _ctx.TrabajosRealizados.FindAsync(id);
+        if (trabajo != null)
+        {
+            _ctx.TrabajosRealizados.Remove(trabajo);
+            await _ctx.SaveChangesAsync();
+            TempData["Success"] = "Trabajo eliminado correctamente.";
+        }
+        return RedirectToAction(nameof(Details), new { id = notaId });
+    }
+
+    // POST: Delete Repuesto
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteRepuesto(int id, int notaId)
+    {
+        var nota = await _ctx.NotasServicio.FindAsync(notaId);
+        if (nota == null) return NotFound();
+        if (nota.Estado == EstadoServicio.Finalizado || nota.Estado == EstadoServicio.Vencido)
+        {
+            TempData["Error"] = "No se puede modificar una nota finalizada.";
+            return RedirectToAction(nameof(Details), new { id = notaId });
+        }
+
+        var repuesto = await _ctx.RepuestosServicios.FindAsync(id);
+        if (repuesto != null)
+        {
+            _ctx.RepuestosServicios.Remove(repuesto);
+            await _ctx.SaveChangesAsync();
+            TempData["Success"] = "Repuesto eliminado correctamente.";
+        }
+        return RedirectToAction(nameof(Details), new { id = notaId });
+    }
+
+    // POST: Delete Trabajo Externo
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteExterno(int id, int notaId)
+    {
+        var nota = await _ctx.NotasServicio.FindAsync(notaId);
+        if (nota == null) return NotFound();
+        if (nota.Estado == EstadoServicio.Finalizado || nota.Estado == EstadoServicio.Vencido)
+        {
+            TempData["Error"] = "No se puede modificar una nota finalizada.";
+            return RedirectToAction(nameof(Details), new { id = notaId });
+        }
+
+        var externo = await _ctx.TrabajosExternos.FindAsync(id);
+        if (externo != null)
+        {
+            _ctx.TrabajosExternos.Remove(externo);
+            await _ctx.SaveChangesAsync();
+            TempData["Success"] = "Trabajo externo eliminado correctamente.";
+        }
+        return RedirectToAction(nameof(Details), new { id = notaId });
+    }
+
+    // POST: Edit Trabajo Realizado
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> EditTrabajo(int id, int notaId, string descripcion, string? tecnico, decimal precioUnitario, int cantidad)
+    {
+        var nota = await _ctx.NotasServicio.FindAsync(notaId);
+        if (nota == null) return NotFound();
+        if (nota.Estado == EstadoServicio.Finalizado || nota.Estado == EstadoServicio.Vencido)
+        {
+            TempData["Error"] = "No se puede modificar una nota finalizada.";
+            return RedirectToAction(nameof(Details), new { id = notaId });
+        }
+
+        var trabajo = await _ctx.TrabajosRealizados.FindAsync(id);
+        if (trabajo != null)
+        {
+            trabajo.Descripcion = descripcion;
+            trabajo.Tecnico = tecnico;
+            trabajo.PrecioUnitario = precioUnitario;
+            trabajo.Cantidad = cantidad;
+            _ctx.TrabajosRealizados.Update(trabajo);
+            await _ctx.SaveChangesAsync();
+            TempData["Success"] = "Trabajo actualizado correctamente.";
+        }
+        return RedirectToAction(nameof(Details), new { id = notaId });
+    }
+
+    // POST: Edit Repuesto
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> EditRepuesto(int id, int notaId, string descripcion, decimal precioUnitario, int cantidad)
+    {
+        var nota = await _ctx.NotasServicio.FindAsync(notaId);
+        if (nota == null) return NotFound();
+        if (nota.Estado == EstadoServicio.Finalizado || nota.Estado == EstadoServicio.Vencido)
+        {
+            TempData["Error"] = "No se puede modificar una nota finalizada.";
+            return RedirectToAction(nameof(Details), new { id = notaId });
+        }
+
+        var repuesto = await _ctx.RepuestosServicios.FindAsync(id);
+        if (repuesto != null)
+        {
+            repuesto.Descripcion = descripcion;
+            repuesto.PrecioUnitario = precioUnitario;
+            repuesto.Cantidad = cantidad;
+            _ctx.RepuestosServicios.Update(repuesto);
+            await _ctx.SaveChangesAsync();
+            TempData["Success"] = "Repuesto actualizado correctamente.";
+        }
+        return RedirectToAction(nameof(Details), new { id = notaId });
+    }
+
+    // POST: Edit Trabajo Externo
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> EditExterno(int id, int notaId, string proveedor, string descripcion, decimal monto, bool facturaAdjunta)
+    {
+        var nota = await _ctx.NotasServicio.FindAsync(notaId);
+        if (nota == null) return NotFound();
+        if (nota.Estado == EstadoServicio.Finalizado || nota.Estado == EstadoServicio.Vencido)
+        {
+            TempData["Error"] = "No se puede modificar una nota finalizada.";
+            return RedirectToAction(nameof(Details), new { id = notaId });
+        }
+
+        var externo = await _ctx.TrabajosExternos.FindAsync(id);
+        if (externo != null)
+        {
+            externo.Proveedor = proveedor;
+            externo.Descripcion = descripcion;
+            externo.Monto = monto;
+            externo.FacturaAdjunta = facturaAdjunta;
+            _ctx.TrabajosExternos.Update(externo);
+            await _ctx.SaveChangesAsync();
+            TempData["Success"] = "Trabajo externo actualizado correctamente.";
+        }
+        return RedirectToAction(nameof(Details), new { id = notaId });
+    }
+
     // POST: Change Estado
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> CambiarEstado(int id, EstadoServicio estado)
@@ -197,4 +340,29 @@ public class NotasServicioController : Controller
             ViewBag.Vehiculos = new SelectList(Enumerable.Empty<Vehiculo>(), "Id", "Descripcion");
         }
     }
+
+    // POST: Delete Nota de Servicio
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var nota = await _ctx.NotasServicio
+            .Include(n => n.TrabajosRealizados)
+            .Include(n => n.RepuestosServicios)
+            .Include(n => n.TrabajosExternos)
+            .FirstOrDefaultAsync(n => n.Id == id);
+
+        if (nota == null) return NotFound();
+
+        if (nota.Estado == EstadoServicio.Finalizado)
+        {
+            TempData["Error"] = "No se puede eliminar una nota de servicio finalizada.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        _ctx.NotasServicio.Remove(nota);
+        await _ctx.SaveChangesAsync();
+        TempData["Success"] = $"Nota {nota.Numero} eliminada correctamente.";
+        return RedirectToAction(nameof(Index));
+    }
 }
+
